@@ -8,6 +8,8 @@ import androidx.core.app.ActivityCompat
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.util.Log
+import androidx.annotation.RequiresApi
 
 class CellDetector(private val context: Context) {
 
@@ -128,6 +130,87 @@ class CellDetector(private val context: Context) {
         return gen
     }
 
+    fun getGsmFrequencyFromARFCN(arfcn: Int): Double {
+        return when (arfcn) {
+            in 0..124 -> 935.0 + 0.2 * (arfcn - 1)  // GSM 900
+            in 975..1023 -> 925.2 + 0.2 * (arfcn - 975)  // GSM 900 extended
+            in 512..885 -> 1930.0 + 0.2 * (arfcn - 512)  // PCS 1900
+            else -> -1.0
+        }
+    }
+
+    fun getGsmBandFromARFCN(arfcn: Int): String {
+        return when (arfcn) {
+            in 0..124 -> "GSM 900"
+            in 975..1023 -> "GSM 900 Extended"
+            in 512..885 -> "GSM 1900"
+            else -> "Unknown"
+        }
+    }
+
+    fun getWcdmaFrequencyFromUARFCN(uarfcn: Int): Double {
+        return when {
+            uarfcn in 10562..10838 -> 2112.4 + 0.2 * (uarfcn - 10562) // Band 1 (2100 MHz)
+            uarfcn in 9662..9938 -> 1932.4 + 0.2 * (uarfcn - 9662)    // Band 2 (1900 MHz)
+            uarfcn in 1162..1513 -> 1807.4 + 0.2 * (uarfcn - 1162)    // Band 3 (1800 MHz)
+            uarfcn in 1537..1738 -> 2112.4 + 0.2 * (uarfcn - 1537)    // Band 4 (1700/2100 MHz)
+            uarfcn in 4357..4458 -> 873.4 + 0.2 * (uarfcn - 4357)     // Band 5 (850 MHz)
+            uarfcn in 2237..2563 -> 1852.4 + 0.2 * (uarfcn - 2237)   // Band 6 (800 MHz)
+            uarfcn in 2012..2338 -> 1747.4 + 0.2 * (uarfcn - 2012)    // Band 9 (1700 MHz)
+            uarfcn in 2937..3088 -> 1842.4 + 0.2 * (uarfcn - 2937)    // Band 10 (1700 MHz)
+            uarfcn in 3712..3787 -> 704.4 + 0.2 * (uarfcn - 3712)     // Band 11 (1500 MHz)
+            uarfcn in 3842..3903 -> 729.4 + 0.2 * (uarfcn - 3842)     // Band 12 (700 MHz)
+            uarfcn in 4017..4043 -> 746.4 + 0.2 * (uarfcn - 4017)     // Band 13 (700 MHz)
+            uarfcn in 4117..4143 -> 758.4 + 0.2 * (uarfcn - 4117)     // Band 14 (700 MHz)
+            uarfcn in 4387..4413 -> 882.4 + 0.2 * (uarfcn - 4387)     // Band 8 (900 MHz)
+            uarfcn in 712..763 -> 1712.4 + 0.2 * (uarfcn - 712)       // Band 19 (800 MHz)
+            else -> -1.0
+        }
+    }
+
+    fun getWcdmaBandFromUarfcn(uarfcn: Int): String {
+        return when {
+            uarfcn in 10562..10838 -> "Band 1"
+            uarfcn in 9662..9938 -> "Band 2"
+            uarfcn in 1162..1513 -> "Band 3"
+            uarfcn in 1537..1738 -> "Band 4"
+            uarfcn in 4357..4458 -> "Band 5"
+            uarfcn in 2237..2563 -> "Band 6 "
+            uarfcn in 2012..2338 -> "Band 9 (1700 MHz)"
+            uarfcn in 2937..3088 -> "Band 10 (1700 MHz)"
+            uarfcn in 3712..3787 -> "Band 11 (1500 MHz)"
+            uarfcn in 3842..3903 -> "Band 12 (700 MHz)"
+            uarfcn in 4017..4043 -> "Band 13 (700 MHz)"
+            uarfcn in 4117..4143 -> "Band 14 (700 MHz)"
+            uarfcn in 4387..4413 -> "Band 8 (900 MHz)"
+            uarfcn in 712..763 -> "Band 19 (800 MHz)"
+            else -> "Unknown"
+        }
+    }
+
+
+    fun getWcdmaBandFromUARFCN(uarfcn: Int): String {
+        return when (uarfcn) {
+            in 10562..10838 -> "Band 1 (2100 MHz)"
+            in 9662..9938 -> "Band 2 (1900 MHz)"
+            in 1162..1513 -> "Band 3 (1800 MHz)"
+            else -> "Unknown"
+        }
+    }
+
+    fun getNrFrequencyFromNRARFCN(nrarfcn: Int): Double {
+        return if (nrarfcn in 0..3279165) 0.005 * nrarfcn else -1.0
+    }
+
+    fun getNrBandFromNRARFCN(nrarfcn: Int): String {
+        return when (nrarfcn) {
+            in 620000..653333 -> "n78 (3500 MHz)"
+            in 693334..733333 -> "n77 (3700 MHz)"
+            in 2054166..2104165 -> "n260 (39 GHz)"
+            else -> "Unknown"
+        }
+    }
+
     fun getLteFrequencyFromEARFCN(earfcn: Int): Double {
         return when (earfcn) {
             in 0..599 -> 2110 + 0.1 * (earfcn - 0)
@@ -154,37 +237,52 @@ class CellDetector(private val context: Context) {
         }
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.R)
     fun updateCellDetails() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return
-        }
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED) return
 
         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
-        val cellInfoList = telephonyManager.allCellInfo
-        val cellInfo = cellInfoList.firstOrNull { it.isRegistered } ?: return
+        val cellInfoList = telephonyManager.allCellInfo ?: return
 
-        when (cellInfo) {
+        // Collect all registered cells
+        val registeredCells = cellInfoList.filter { it.isRegistered }
+
+        // Prefer WCDMA > LTE > GSM
+        val preferredCell = registeredCells.firstOrNull { it is CellInfoGsm }
+            ?: registeredCells.firstOrNull { it is CellInfoWcdma }
+            ?: registeredCells.firstOrNull { it is CellInfoLte }
+            ?: return
+
+        when (preferredCell) {
             is CellInfoGsm -> {
-                val identity = cellInfo.cellIdentity
-                val arfcnValue = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.arfcn else null
+                Log.d("DEBUG", "2G detected")
+                val identity = preferredCell.cellIdentity
+                val signal = preferredCell.cellSignalStrength
 
                 plmn = "${identity.mcc}${identity.mnc}"
                 cid = identity.cid.toLong()
                 lac = identity.lac
-                rac = null
                 tac = null
                 type = "GSM"
-                arfcn = arfcnValue
-                band = null
-                frequencyMHz = null
-
-                val signal = cellInfo.cellSignalStrength as CellSignalStrengthGsm
+                arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.arfcn else null
                 rxlev = signal.dbm
+
+                arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.arfcn else null
+                band = arfcn?.let { getGsmBandFromARFCN(it) }
+                frequencyMHz = arfcn?.let { getGsmFrequencyFromARFCN(it) }
+                rsrp = null
+                rsrq = null
+                ecn0 = null
+                rscp = null
             }
 
             is CellInfoWcdma -> {
-                val identity = cellInfo.cellIdentity
-                val uarfcnValue = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.uarfcn else null
+
+                val identity = preferredCell.cellIdentity
+                val signal = preferredCell.cellSignalStrength
+                Log.d("Signal Class", signal::class.java.name)
 
                 plmn = "${identity.mcc}${identity.mnc}"
                 cid = identity.cid.toLong()
@@ -192,37 +290,38 @@ class CellDetector(private val context: Context) {
                 rac = null
                 tac = null
                 type = "WCDMA"
-                arfcn = uarfcnValue
-                band = null
-                frequencyMHz = null
+                arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.uarfcn else null
+                ecn0 = signal.ecNo
+//                rscp = signal.rscp
+                rsrp = null
+                rsrq = null
+                rxlev = null
+                band = arfcn?.let { getWcdmaBandFromUarfcn(it) }
+                frequencyMHz = arfcn?.let { getWcdmaFrequencyFromUARFCN(it) }
 
-                val signal = cellInfo.cellSignalStrength as CellSignalStrengthWcdma
-//                rscp = signal.rscp  // API 29+
-//                ecn0 = signal.ecNo
+                Log.d("3G Signal", "ECN0 = ${signal.ecNo} dB, DBM = ${signal.dbm}")
             }
 
             is CellInfoLte -> {
-                val identity = cellInfo.cellIdentity
-                val earfcnValue = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.earfcn else null
+                val identity = preferredCell.cellIdentity
+                val signal = preferredCell.cellSignalStrength
 
                 plmn = "${identity.mcc}${identity.mnc}"
                 cid = identity.ci.toLong()
+                tac = identity.tac
                 lac = null
                 rac = null
-                tac = identity.tac
                 type = "LTE"
-                arfcn = earfcnValue
-                band = earfcnValue?.let { getLteBandFromArfcn(it) }
-                frequencyMHz = earfcnValue?.let { getLteFrequencyFromEARFCN(it) }
-
-                val signal = cellInfo.cellSignalStrength as CellSignalStrengthLte
+                arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.earfcn else null
+                band = arfcn?.let { getLteBandFromArfcn(it) }
                 rsrp = signal.rsrp
                 rsrq = signal.rsrq
-            }
-
-            else -> {
-                // Do nothing or set default values
+                ecn0 = null
+                rxlev = null
+                rscp = null
+                frequencyMHz = arfcn?.let { getLteFrequencyFromEARFCN(it) }
             }
         }
     }
 }
+
