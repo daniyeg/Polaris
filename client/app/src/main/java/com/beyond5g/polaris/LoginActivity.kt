@@ -7,22 +7,24 @@ import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 
-class SignupActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.signup)
+        setContentView(R.layout.login)
 
         val confirmButton = findViewById<Button>(R.id.confirm)
         confirmButton.setOnClickListener {
-            val phoneNumber = findViewById<EditText>(R.id.phoneNumber).text.toString()
             val username = findViewById<EditText>(R.id.username).text.toString()
             val password = findViewById<EditText>(R.id.password).text.toString()
-            val code = findViewById<EditText>(R.id.code).text.toString()
+
+            val validated = true
+            if (validated){
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
+
         }
 
-        val sendcodeButton = findViewById<Button>(R.id.sendcode)
-        sendcodeButton.setOnClickListener {
 
-        }
     }
 }

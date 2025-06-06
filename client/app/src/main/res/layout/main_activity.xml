@@ -38,7 +38,7 @@
         />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/start"
         android:layout_width="226dp"
         android:layout_height="226dp"
         android:background="@drawable/circle_button"

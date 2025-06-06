@@ -1,6 +1,7 @@
 package com.beyond5g.polaris
 
 import com.beyond5g.polaris.SignupActivity
+import com.beyond5g.polaris.LoginActivity
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,7 +15,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.main_activity)
 
-        val button = findViewById<Button>(R.id.button)
+        val button = findViewById<Button>(R.id.start)
         button.setOnClickListener {
             val intent = Intent(this, SignupActivity::class.java)
             startActivity(intent)
