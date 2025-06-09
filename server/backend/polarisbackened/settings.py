@@ -30,7 +30,8 @@ SECRET_KEY = 'django-insecure-678k5g-%13%4fcmbm+dtwebc6y#04s*&u&3xm=e+hbtpw%3*67
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['polaris-server-30ha.onrender.com', 'https://polaris-server-30ha.onrender.com', 'polaris-zp8u.onrender.com', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS = ['polaris-server-30ha.onrender.com', 'https://polaris-server-30ha.onrender.com', 'polaris-zp8u.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -158,3 +159,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'polaris.User'
 
 CORS_ALLOW_ALL_ORIGINS = True
+Access-Control-Allow-Origin:*
