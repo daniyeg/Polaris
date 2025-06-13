@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function LoginPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     usernameOrPhone: '',
     password: ''
@@ -13,6 +15,7 @@ export default function LoginPage() {
     password: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [apiError, setApiError] = useState('')
 
   const validateForm = () => {
     const newErrors = { usernameOrPhone: '', password: '' }
@@ -38,16 +41,33 @@ export default function LoginPage() {
     if (!validateForm()) return
 
     setIsSubmitting(true)
+    setApiError('')
 
     try {
-      console.log('Login data:', formData)
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const response = await fetch('https://polaris-server-30ha.onrender.com/api/login/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          identifier: formData.usernameOrPhone.trim(),
+          password: formData.password
+        })
+      })
 
-      alert('ورود با موفقیت انجام شد!')
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'نام کاربری یا رمز عبور اشتباه است')
+      }
+
+      const data = await response.json()
+      console.log('Login successful:', data)
+
+      router.push('/dashboard')
 
     } catch (error) {
       console.error('Login error:', error)
-      alert('نام کاربری یا رمز عبور اشتباه است.')
+      setApiError(error instanceof Error ? error.message : 'خطایی در ورود رخ داد')
     } finally {
       setIsSubmitting(false)
     }
@@ -60,6 +80,10 @@ export default function LoginPage() {
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: '' }))
     }
+
+    if (apiError) {
+      setApiError('')
+    }
   }
 
   const isPhoneNumber = (value: string) => {
@@ -71,6 +95,12 @@ export default function LoginPage() {
       <main className="w-full max-w-md">
         <div className="bg-ocean-800/20 backdrop-blur-sm rounded-lg p-6 shadow-lg">
           <h1 className="text-2xl font-bold text-center mb-6">ورود</h1>
+
+          {apiError && (
+            <div className="bg-red-500/20 border border-red-500/50 text-red-400 p-3 rounded-lg mb-4 text-sm">
+              {apiError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
