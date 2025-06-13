@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function SignupPage() {
+  const router = useRouter()
   const [formData, setFormData] = useState({
     username: '',
     phoneNumber: '',
@@ -17,6 +19,7 @@ export default function SignupPage() {
     confirmPassword: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [apiError, setApiError] = useState('')
 
   const validateForm = () => {
     const newErrors = { username: '', phoneNumber: '', password: '', confirmPassword: '' }
@@ -64,15 +67,46 @@ export default function SignupPage() {
     if (!validateForm()) return
 
     setIsSubmitting(true)
+    setApiError('')
 
     try {
-      console.log('Signup data:', formData)
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      alert('ثبت نام با موفقیت انجام شد!')
+      const signupResponse = await fetch('https://polaris-server-30ha.onrender.com/api/signup/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password,
+          phone_number: formData.phoneNumber,
+        })
+      })
+
+      if (!signupResponse.ok) {
+        const data = await signupResponse.json()
+        throw new Error(data.message || 'خطا در ثبت نام')
+      }
+
+      const otpResponse = await fetch('https://polaris-server-30ha.onrender.com/api/request_otp/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone_number: formData.phoneNumber
+        })
+      })
+
+      if (!otpResponse.ok) {
+        const errorData = await otpResponse.json()
+        throw new Error(errorData.message || 'خطا در ارسال کد تأیید')
+      }
+
+      router.push(`/signup/verify-otp?phoneNumber=${encodeURIComponent(formData.phoneNumber)}`)
 
     } catch (error) {
       console.error('Signup error:', error)
-      alert('خطایی در ثبت نام رخ داد. لطفاً دوباره تلاش کنید.')
+      setApiError(error instanceof Error ? error.message : 'خطایی در ثبت نام رخ داد')
     } finally {
       setIsSubmitting(false)
     }
@@ -92,6 +126,12 @@ export default function SignupPage() {
       <main className="w-full max-w-md">
         <div className="bg-ocean-800/20 backdrop-blur-sm rounded-lg p-6 shadow-lg">
           <h1 className="text-2xl font-bold text-center mb-6">ثبت نام</h1>
+
+          {apiError && (
+            <div className="bg-red-500/20 border border-red-500/50 text-red-400 p-3 rounded-lg mb-4 text-sm">
+              {apiError}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -176,7 +216,7 @@ export default function SignupPage() {
               disabled={isSubmitting}
               className="w-full bg-primary hover:bg-primary-hover text-primary-foreground py-3 px-6 rounded-lg text-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? 'در حال ثبت نام...' : 'ثبت نام'}
+              {isSubmitting ? 'در حال ارسال کد تأیید...' : 'دریافت کد تأیید'}
             </button>
           </form>
 
