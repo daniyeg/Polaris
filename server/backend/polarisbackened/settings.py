@@ -158,6 +158,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'polaris.User'
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://polaris-server-30ha.onrender.com",
+]
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_HEADERS = ['*']
 CORS_ALLOW_METHODS = ['DELETE', 'GET', 'OPTIONS', 'PATCH', 'POST', 'PUT']
+CORS_ALLOW_CREDENTIALS = True
