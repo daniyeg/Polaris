@@ -7,10 +7,7 @@ from django.contrib.auth import authenticate
 
 
 class RequestOTPSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(
-        max_length=15,
-        required=True,
-    )
+    phone_number = serializers.CharField(max_length=15, required=True)
 
     def validate(self, data):
         phone = data['phone_number']
@@ -29,10 +26,6 @@ class VerifyOTPSerializer(serializers.Serializer):
     otp_code = serializers.CharField(max_length=6, required=True)
 
 
-class ItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Item
-        fields = '__all__'
 
 
 class SignupSerializer(serializers.ModelSerializer):
@@ -97,3 +90,9 @@ class LoginSerializer(serializers.Serializer):
 
         data['user'] = user
         return data
+
+
+class ItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = '__all__'

@@ -5,10 +5,8 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=15, unique=True, blank=False, null=False)
     is_verified = models.BooleanField(default=False)
     
-    # Make username optional
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)
     
-    # Use phone number as the default identifier
     USERNAME_FIELD = 'phone_number'
 
 
