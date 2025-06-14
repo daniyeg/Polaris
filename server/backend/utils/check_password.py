@@ -10,7 +10,7 @@ def check_password_safety(password):
         raise ValidationError("Password must contain at least one lowercase letter.")
     if not re.search(r"\d", password):
         raise ValidationError("Password must contain at least one digit.")
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
+    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]/", password):
         raise ValidationError("Password must contain at least one special character.")
 
     return True
