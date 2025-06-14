@@ -44,8 +44,20 @@ export default function SignupPage() {
     if (!formData.password) {
       newErrors.password = 'رمز عبور الزامی است'
       isValid = false
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'رمز عبور باید حداقل ۶ کاراکتر باشد'
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'رمز عبور باید حداقل ۸ کاراکتر باشد'
+      isValid = false
+    } else if (!/[A-Z]/.test(formData.password)) {
+      newErrors.password = 'رمز عبور باید شامل حداقل یک حرف بزرگ لاتین باشد'
+      isValid = false
+    } else if (!/[a-z]/.test(formData.password)) {
+      newErrors.password = 'رمز عبور باید شامل حداقل یک حرف کوچک لاتین باشد'
+      isValid = false
+    } else if (!/\d/.test(formData.password)) {
+      newErrors.password = 'رمز عبور باید شامل حداقل یک عدد باشد'
+      isValid = false
+    } else if (!/[!@#$%^&*(),.?\":{}|<>]/.test(formData.password)) {
+      newErrors.password = 'رمز عبور باید شامل حداقل یکی از کاراکترهای !@#$%^&*(),.?\":{}|<> باشد'
       isValid = false
     }
 
@@ -87,7 +99,7 @@ export default function SignupPage() {
         throw new Error(data.message || 'خطا در ثبت نام')
       }
 
-      const otpResponse = await fetch('https://polaris-server-30ha.onrender.com/api/request_otp/', {
+      const otpResponse = await fetch('https://polaris-server-30ha.onrender.com/request_otp/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
