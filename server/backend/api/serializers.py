@@ -11,12 +11,10 @@ class RequestOTPSerializer(serializers.Serializer):
 
     def validate(self, data):
         phone = data['phone_number']
-
-        if User.objects.filter(phone_number=phone).exists():
+        if not User.objects.filter(phone_number=phone).exists():
             raise serializers.ValidationError({
-                "phone_number": "A user with this phone number already exists."
+                "phone_number": "No user with this phone number exists."
             })
-
         return data
 
 
@@ -26,42 +24,24 @@ class VerifyOTPSerializer(serializers.Serializer):
     otp_code = serializers.CharField(max_length=6, required=True)
 
 
-
-
 class SignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    otp_code = serializers.CharField(write_only=True, required=True)
     phone_number = serializers.CharField(max_length=15, required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'password', 'phone_number', 'otp_code']
-
-    def validate(self, data):
-        cache_key = f"otp_{data['phone_number']}"
-        cached_otp = cache.get(cache_key)
-        
-        if not cached_otp:
-            raise serializers.ValidationError({"otp_code": "OTP expired or not requested"})
-        
-        if cached_otp != data['otp_code']:
-            raise serializers.ValidationError({"otp_code": "Invalid OTP"})
-        
-        if check_password_safety(data['password']):
-            return data
+        fields = ['username', 'password', 'phone_number']
 
     def create(self, validated_data):
-        validated_data.pop('otp_code')
-        
         user = User.objects.create_user(
             username=validated_data['username'],
-            email=validated_data.get('email'),
             password=validated_data['password'],
-            phone_number=validated_data['phone_number']
+            phone_number=validated_data['phone_number'],
         )
-        
-        cache.delete(f"otp_{validated_data['phone_number']}")
+        user.is_verified = False
+        user.save()
         return user
+
 
 
 
