@@ -1,7 +1,11 @@
 plugins {
+    id("kotlin-kapt")
+
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.kapt)
+
 }
 
 android {
@@ -41,6 +45,11 @@ android {
 
 dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("androidx.room:room-runtime:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
+//    kapt("androidx.room:room-compiler:2.5.2")
+    kapt(libs.room.compiler)  // Use kapt here
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

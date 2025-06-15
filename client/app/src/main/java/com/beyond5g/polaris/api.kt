@@ -18,7 +18,7 @@ fun sendUserData() {
     val body = json.toString().toRequestBody(mediaType)
 
     val request = Request.Builder()
-        .url("https://polaris-server-30ha.onrender.com/api/add") // Replace with your actual Django API URL
+        .url("https://polaris-server-30ha.onrender.com/api/add/")
         .post(body)
         .build()
 
