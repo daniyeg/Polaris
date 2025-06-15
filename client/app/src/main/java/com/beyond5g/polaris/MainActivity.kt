@@ -16,11 +16,28 @@ import com.beyond5g.polaris.ui.theme.PolarisTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // ✅ Initialize and insert a test row into the database
+        val db = DatabaseProvider.getDatabase(applicationContext)
+        val dao = db.testDao()
+        val test = Test(
+            phonenumber = "09123456789",
+            timestamp = System.currentTimeMillis(),
+            cell_info_id = 1
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            dao.insert(test)
+        }
+
         setContent {
             PolarisTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -31,8 +48,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-
     }
 }
 
