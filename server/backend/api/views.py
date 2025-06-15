@@ -144,6 +144,157 @@ def logout_user(request):
     return Response({"message": "Logged out successfully."})
 
 
+@swagger_auto_schema(method='post', request_body=CellInfoSerializer)
+@api_view(['POST'])
+def create_cell_info(request):
+    serializer = CellInfoSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@swagger_auto_schema(method='post', request_body=TestSerializer)
+@api_view(['POST'])
+def create_test(request):
+    serializer = TestSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+@swagger_auto_schema(method='post', request_body=HTTPDownloadTestSerializer)
+@api_view(['POST'])
+def create_http_download_test(request):
+    serializer = HTTPDownloadTestSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@swagger_auto_schema(method='post', request_body=HTTPDownloadTestSerializer)
+@api_view(['POST'])
+def create_http_upload_test(request):
+    serializer = HTTPUploadTestSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@swagger_auto_schema(method='post', request_body=PingTestSerializer)
+@api_view(['POST'])
+def create_ping_test(request):
+    serializer = PingTestSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@swagger_auto_schema(method='post', request_body=DNSTestSerializer)
+@api_view(['POST'])
+def create_dns_test(request):
+    serializer = DNSTestSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@swagger_auto_schema(method='post', request_body=WebTestSerializer)
+@api_view(['POST'])
+def create_web_test(request):
+    serializer = WebTestSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@swagger_auto_schema(method='post', request_body=SMSTestSerializer)
+@api_view(['POST'])
+def create_sms_test(request):
+    serializer = SMSTestSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=201)
+    return Response(serializer.errors, status=400)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_users(request):
+    users = User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_cell_info(request):
+    data = CellInfo.objects.all()
+    serializer = CellInfoSerializer(data, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_tests(request):
+    data = Test.objects.all()
+    serializer = TestSerializer(data, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_http_download_tests(request):
+    data = HttpDownloadTest.objects.all()
+    serializer = HttpDownloadTestSerializer(data, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_http_upload_tests(request):
+    data = HttpUploadTest.objects.all()
+    serializer = HttpUploadTestSerializer(data, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_ping_tests(request):
+    data = PingTest.objects.all()
+    serializer = PingTestSerializer(data, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_dns_tests(request):
+    data = DnsTest.objects.all()
+    serializer = DnsTestSerializer(data, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_web_tests(request):
+    data = WebTest.objects.all()
+    serializer = WebTestSerializer(data, many=True)
+    return Response(serializer.data)
+
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def get_sms_tests(request):
+    data = SmsTest.objects.all()
+    serializer = SmsTestSerializer(data, many=True)
+    return Response(serializer.data)
+
+
 @swagger_auto_schema(method='get')
 @api_view(['GET'])
 def get_item(request):

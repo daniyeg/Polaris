@@ -89,6 +89,54 @@ class LoginSerializer(serializers.Serializer):
         return data
 
 
+class CellInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CellInfo
+        fields = '__all__'
+
+
+class TestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Test
+        fields = '__all__'
+
+
+class HTTPDownloadTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HTTPDownloadTest
+        fields = '__all__'
+
+
+class HTTPUploadTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HTTPUploadTest
+        fields = '__all__'
+
+
+class PingTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PingTest
+        fields = '__all__'
+
+
+class DNSTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DNSTest
+        fields = '__all__'
+
+
+class WebTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WebTest
+        fields = '__all__'
+
+
+class SMSTestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SMSTest
+        fields = '__all__'
+
+
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
