@@ -90,9 +90,31 @@ class LoginSerializer(serializers.Serializer):
 
 
 class CellInfoSerializer(serializers.ModelSerializer):
+    phone_number = serializers.CharField(required=True)  
+    lat = serializers.FloatField(required=True)
+    lng = serializers.FloatField(required=True)
+    timestamp = serializers.DateTimeField(required=True)
+    gen = serializers.CharField(max_length=20, required=True)
+    tech = serializers.CharField(max_length=50, required=True)
+    plmn = serializers.CharField(max_length=20, required=True)
+    cid = serializers.BigIntegerField(required=True)
+
     class Meta:
         model = CellInfo
         fields = '__all__'
+        extra_kwargs = {
+            'lac': {'required': False},
+            'rac': {'required': False},
+            'tac': {'required': False},
+            'freq_band': {'required': False},
+            'afrn': {'required': False},
+            'freq': {'required': False},
+            'rsrp': {'required': False},
+            'rsrq': {'required': False},
+            'rscp': {'required': False},
+            'ecno': {'required': False},
+            'rxlev': {'required': False},
+        }
 
 
 class TestSerializer(serializers.ModelSerializer):

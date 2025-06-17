@@ -110,7 +110,7 @@ def signup_user(request):
 
     return JsonResponse({
         'status': 'success',
-        'message': 'User created successfully. Please verify with OTP.',
+        'message': 'User addd successfully. Please verify with OTP.',
         'user_id': user.id,
         'username': user.username
     })
@@ -125,7 +125,7 @@ def login_user(request):
     user = serializer.validated_data['user']
     login(request, user)  
 
-    token, _ = Token.objects.get_or_create(user=user)
+    token, _ = Token.objects.get_or_add(user=user)
 
     return Response({
         "message": "Login successful",
@@ -146,7 +146,7 @@ def logout_user(request):
 
 @swagger_auto_schema(method='post', request_body=CellInfoSerializer)
 @api_view(['POST'])
-def create_cell_info(request):
+def add_cell_info(request):
     serializer = CellInfoSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -156,7 +156,7 @@ def create_cell_info(request):
 
 @swagger_auto_schema(method='post', request_body=TestSerializer)
 @api_view(['POST'])
-def create_test(request):
+def add_test(request):
     serializer = TestSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -165,7 +165,7 @@ def create_test(request):
 
 @swagger_auto_schema(method='post', request_body=HTTPDownloadTestSerializer)
 @api_view(['POST'])
-def create_http_download_test(request):
+def add_http_download_test(request):
     serializer = HTTPDownloadTestSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -175,7 +175,7 @@ def create_http_download_test(request):
 
 @swagger_auto_schema(method='post', request_body=HTTPDownloadTestSerializer)
 @api_view(['POST'])
-def create_http_upload_test(request):
+def add_http_upload_test(request):
     serializer = HTTPUploadTestSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -185,7 +185,7 @@ def create_http_upload_test(request):
 
 @swagger_auto_schema(method='post', request_body=PingTestSerializer)
 @api_view(['POST'])
-def create_ping_test(request):
+def add_ping_test(request):
     serializer = PingTestSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -195,7 +195,7 @@ def create_ping_test(request):
 
 @swagger_auto_schema(method='post', request_body=DNSTestSerializer)
 @api_view(['POST'])
-def create_dns_test(request):
+def add_dns_test(request):
     serializer = DNSTestSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -205,7 +205,7 @@ def create_dns_test(request):
 
 @swagger_auto_schema(method='post', request_body=WebTestSerializer)
 @api_view(['POST'])
-def create_web_test(request):
+def add_web_test(request):
     serializer = WebTestSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -215,7 +215,7 @@ def create_web_test(request):
 
 @swagger_auto_schema(method='post', request_body=SMSTestSerializer)
 @api_view(['POST'])
-def create_sms_test(request):
+def add_sms_test(request):
     serializer = SMSTestSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save()
