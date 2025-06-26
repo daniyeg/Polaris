@@ -205,3 +205,19 @@ class UnifiedTestSerializer(serializers.ModelSerializer):
         elif hasattr(obj, 'smstest'):
             return SMSTestSerializer(obj.smstest).data
         return None
+
+class AddTestInputSerializer(serializers.Serializer):
+    type_ = serializers.ChoiceField(choices=[
+        ('http_download', 'http_download'),
+        ('http_upload', 'http_upload'),
+        ('ping', 'ping'),
+        ('dns', 'dns'),
+        ('web', 'web'),
+        ('sms', 'sms'),
+        ('item', 'item'),
+        
+    ],required=True)
+    phone_number = serializers.CharField(required=True)
+    timestamp = serializers.DateTimeField(required=True)
+    cell_info = serializers.IntegerField(required=True)
+    detail = serializers.DictField(required=True)

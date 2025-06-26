@@ -163,14 +163,13 @@ def add_cell_info(request):
     return Response(serializer.errors, status=400)
 
 
-@swagger_auto_schema(method='post', request_body=UnifiedTestSerializer)
+@swagger_auto_schema(method='post', request_body=AddTestInputSerializer)
 @api_view(['POST'])
 def add_test(request):
     type_ = request.data.get('type_')
     if not type_ or type_ not in TEST_SERIALIZER_MAP:
         return Response({'error': 'Invalid or missing test type'}, status=400)
 
-    # Create the base Test instance
     test_fields = {
         'phone_number': request.data.get('phone_number'),
         'timestamp': request.data.get('timestamp'),
@@ -191,67 +190,8 @@ def add_test(request):
         serializer.save()
         return Response(UnifiedTestSerializer(test).data, status=status.HTTP_201_CREATED)
     else:
-        test.delete()  # Rollback the base test if subtype fails
+        test.delete()  
         return Response(serializer.errors, status=400)
-
-# @swagger_auto_schema(method='post', request_body=HTTPDownloadTestSerializer)
-# @api_view(['POST'])
-# def add_http_download_test(request):
-#     serializer = HTTPDownloadTestSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=201)
-#     return Response(serializer.errors, status=400)
-
-
-# @swagger_auto_schema(method='post', request_body=HTTPDownloadTestSerializer)
-# @api_view(['POST'])
-# def add_http_upload_test(request):
-#     serializer = HTTPUploadTestSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=201)
-#     return Response(serializer.errors, status=400)
-
-
-# @swagger_auto_schema(method='post', request_body=PingTestSerializer)
-# @api_view(['POST'])
-# def add_ping_test(request):
-#     serializer = PingTestSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=201)
-#     return Response(serializer.errors, status=400)
-
-
-# @swagger_auto_schema(method='post', request_body=DNSTestSerializer)
-# @api_view(['POST'])
-# def add_dns_test(request):
-#     serializer = DNSTestSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=201)
-#     return Response(serializer.errors, status=400)
-
-
-# @swagger_auto_schema(method='post', request_body=WebTestSerializer)
-# @api_view(['POST'])
-# def add_web_test(request):
-#     serializer = WebTestSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=201)
-#     return Response(serializer.errors, status=400)
-
-
-# @swagger_auto_schema(method='post', request_body=SMSTestSerializer)
-# @api_view(['POST'])
-# def add_sms_test(request):
-#     serializer = SMSTestSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=201)
-#     return Response(serializer.errors, status=400)
 
 
 @swagger_auto_schema(method='get')
@@ -294,53 +234,6 @@ def get_tests(request):
     serializer = UnifiedTestSerializer(query, many=True)
     return Response(serializer.data)
 
-
-# @swagger_auto_schema(method='get')
-# @api_view(['GET'])
-# def get_http_download_tests(request):
-#     data = HttpDownloadTest.objects.all()
-#     serializer = HttpDownloadTestSerializer(data, many=True)
-#     return Response(serializer.data)
-
-
-# @swagger_auto_schema(method='get')
-# @api_view(['GET'])
-# def get_http_upload_tests(request):
-#     data = HttpUploadTest.objects.all()
-#     serializer = HttpUploadTestSerializer(data, many=True)
-#     return Response(serializer.data)
-
-
-# @swagger_auto_schema(method='get')
-# @api_view(['GET'])
-# def get_ping_tests(request):
-#     data = PingTest.objects.all()
-#     serializer = PingTestSerializer(data, many=True)
-#     return Response(serializer.data)
-
-
-# @swagger_auto_schema(method='get')
-# @api_view(['GET'])
-# def get_dns_tests(request):
-#     data = DnsTest.objects.all()
-#     serializer = DnsTestSerializer(data, many=True)
-#     return Response(serializer.data)
-
-
-# @swagger_auto_schema(method='get')
-# @api_view(['GET'])
-# def get_web_tests(request):
-#     data = WebTest.objects.all()
-#     serializer = WebTestSerializer(data, many=True)
-#     return Response(serializer.data)
-
-
-# @swagger_auto_schema(method='get')
-# @api_view(['GET'])
-# def get_sms_tests(request):
-#     data = SmsTest.objects.all()
-#     serializer = SmsTestSerializer(data, many=True)
-#     return Response(serializer.data)
 
 
 @swagger_auto_schema(method='get')
