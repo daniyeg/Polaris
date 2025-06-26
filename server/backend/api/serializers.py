@@ -127,13 +127,6 @@ class CellInfoSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class TestSerializer(serializers.ModelSerializer):
-    type_ = serializers.CharField(required=True)  
-    class Meta:
-        model = Test
-        fields = '__all__'
-
-
 class HTTPDownloadTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = HTTPDownloadTest
@@ -174,3 +167,41 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = '__all__'
+
+class UnifiedTestSerializer(serializers.ModelSerializer):
+    type_ = serializers.SerializerMethodField()
+    detail = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Test
+        fields = ['id', 'phone_number', 'timestamp', 'cell_info', 'type_', 'detail']
+
+    def get_type_(self, obj):
+        if hasattr(obj, 'httpdownloadtest'):
+            return 'http_download'
+        elif hasattr(obj, 'httpuploadtest'):
+            return 'http_upload'
+        elif hasattr(obj, 'pingtest'):
+            return 'ping'
+        elif hasattr(obj, 'dnstest'):
+            return 'dns'
+        elif hasattr(obj, 'webtest'):
+            return 'web'
+        elif hasattr(obj, 'smstest'):
+            return 'sms'
+        return 'unknown'
+
+    def get_detail(self, obj):
+        if hasattr(obj, 'httpdownloadtest'):
+            return HTTPDownloadTestSerializer(obj.httpdownloadtest).data
+        elif hasattr(obj, 'httpuploadtest'):
+            return HTTPUploadTestSerializer(obj.httpuploadtest).data
+        elif hasattr(obj, 'pingtest'):
+            return PingTestSerializer(obj.pingtest).data
+        elif hasattr(obj, 'dnstest'):
+            return DNSTestSerializer(obj.dnstest).data
+        elif hasattr(obj, 'webtest'):
+            return WebTestSerializer(obj.webtest).data
+        elif hasattr(obj, 'smstest'):
+            return SMSTestSerializer(obj.smstest).data
+        return None
