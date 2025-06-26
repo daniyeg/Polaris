@@ -97,7 +97,7 @@ class CellInfoSerializer(serializers.ModelSerializer):
     gen = serializers.CharField(max_length=20, required=True)
     tech = serializers.CharField(max_length=50, required=True)
     plmn = serializers.CharField(max_length=20, required=True)
-    cid = serializers.BigIntegerField(required=True)
+    cid = serializers.IntegerField(required=True)
 
     class Meta:
         model = CellInfo
