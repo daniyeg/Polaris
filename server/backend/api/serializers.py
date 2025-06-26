@@ -116,6 +116,16 @@ class CellInfoSerializer(serializers.ModelSerializer):
             'rxlev': {'required': False},
         }
 
+    def create(self, validated_data):
+        phone_str = validated_data.pop('phone_number')
+        try:
+            user = User.objects.get(phone_number=phone_str)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({'phone_number': 'User with this phone number does not exist.'})
+        
+        validated_data['phone_number'] = user
+        return super().create(validated_data)
+
 
 class TestSerializer(serializers.ModelSerializer):
     class Meta:
