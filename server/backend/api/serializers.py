@@ -128,6 +128,7 @@ class CellInfoSerializer(serializers.ModelSerializer):
 
 
 class TestSerializer(serializers.ModelSerializer):
+    type_ = serializers.CharField(required=True)  
     class Meta:
         model = Test
         fields = '__all__'
