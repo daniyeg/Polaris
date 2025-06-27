@@ -17,6 +17,8 @@ from django.contrib.auth import login
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout
 from django.shortcuts import get_object_or_404
+from datetime import timedelta
+from django.utils import timezone
 
 TEST_SERIALIZER_MAP = {
     'http_download': HTTPDownloadTestSerializer,
