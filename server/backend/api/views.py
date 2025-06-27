@@ -171,26 +171,22 @@ def add_test(request):
     if not type_ or type_ not in TEST_SERIALIZER_MAP:
         return Response({'error': 'Invalid or missing test type'}, status=400)
 
-    # 🔍 Lookup: phone_number → User instance
     try:
         user = User.objects.get(phone_number=request.data.get('phone_number'))
     except User.DoesNotExist:
         return Response({'error': 'User not found with given phone number'}, status=400)
 
-    # 🔍 Lookup: cell_info ID → CellInfo instance
     try:
         cell_info = CellInfo.objects.get(id=request.data.get('cell_info'))
     except CellInfo.DoesNotExist:
         return Response({'error': 'CellInfo not found with given ID'}, status=400)
 
-    # ✅ Create base Test
     test = Test.objects.create(
         phone_number=user,
         timestamp=request.data.get('timestamp'),
         cell_info=cell_info
     )
 
-    # ✅ Create subtype
     subtype_data = dict(request.data.get('detail', {}))
     subtype_data['id'] = test.id
 
@@ -224,23 +220,35 @@ def get_cell_info(request):
 @swagger_auto_schema(method='get', responses={200: UnifiedTestSerializer(many=True)})
 @api_view(['GET'])
 def get_tests(request):
+    time_filter = request.query_params.get('range')
     query = Test.objects.all()
 
-    hours = request.query_params.get('hours')
-    if hours:
-        try:
-            hours = float(hours)
-            time_threshold = timezone.now() - timedelta(hours=hours)
-            query = query.filter(timestamp__gte=time_threshold)
-        except ValueError:
-            return Response({"error": "Invalid hours parameter."}, status=400)
-
-    if request.query_params.get('day') == 'yesterday':
-        now = timezone.now()
-        today = now.replace(hour=0, minute=0, second=0, microsecond=0)
-        yesterday_start = today - timedelta(days=1)
-        yesterday_end = today
-        query = query.filter(timestamp__gte=yesterday_start, timestamp__lt=yesterday_end)
+    now = timezone.now()
+    if time_filter:
+        time_filter = time_filter.lower()
+        if time_filter.endswith('h'):  
+            try:
+                hours = float(time_filter[:-1])
+                time_threshold = now - timedelta(hours=hours)
+                query = query.filter(timestamp__gte=time_threshold)
+            except ValueError:
+                return Response({"error": "Invalid hour format. Use '1h', '3h', etc."}, status=400)
+        elif time_filter.endswith('d'):  
+            try:
+                days = int(time_filter[:-1])
+                time_threshold = now - timedelta(days=days)
+                query = query.filter(timestamp__gte=time_threshold)
+            except ValueError:
+                return Response({"error": "Invalid day format. Use '1d' for 1 day."}, status=400)
+        elif time_filter.endswith('w'): 
+            try:
+                weeks = int(time_filter[:-1])
+                time_threshold = now - timedelta(weeks=weeks)
+                query = query.filter(timestamp__gte=time_threshold)
+            except ValueError:
+                return Response({"error": "Invalid week format. Use '1w' for 1 week."}, status=400)
+        else:
+            return Response({"error": "Invalid range. Use formats like '1h', '1d', '1w'."}, status=400)
 
     serializer = UnifiedTestSerializer(query, many=True)
     return Response(serializer.data)
