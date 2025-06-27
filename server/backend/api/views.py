@@ -16,6 +16,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import logout
+from django.shortcuts import get_object_or_404
 
 TEST_SERIALIZER_MAP = {
     'http_download': HTTPDownloadTestSerializer,
@@ -170,19 +171,21 @@ def add_test(request):
     if not type_ or type_ not in TEST_SERIALIZER_MAP:
         return Response({'error': 'Invalid or missing test type'}, status=400)
 
-    test_fields = {
-        'phone_number': request.data.get('phone_number'),
-        'timestamp': request.data.get('timestamp'),
-        'cell_info': request.data.get('cell_info')
-    }
+    # 🔧 Convert phone number string → User instance
+    try:
+        user = User.objects.get(phone_number=request.data.get('phone_number'))
+    except User.DoesNotExist:
+        return Response({'error': 'User not found with given phone number'}, status=400)
 
-    test = Test.objects.create(**test_fields)
+    test = Test.objects.create(
+        phone_number=user,
+        timestamp=request.data.get('timestamp'),
+        cell_info=request.data.get('cell_info')
+    )
 
-    # Prepare subtype data with Test ID
     subtype_data = dict(request.data.get('detail', {}))
-    subtype_data['id'] = test.id
+    subtype_data['id'] = test.id  # Set FK
 
-    # Validate and create the subtype test
     serializer_class = TEST_SERIALIZER_MAP[type_]
     serializer = serializer_class(data=subtype_data)
 
@@ -190,7 +193,7 @@ def add_test(request):
         serializer.save()
         return Response(UnifiedTestSerializer(test).data, status=status.HTTP_201_CREATED)
     else:
-        test.delete()  
+        test.delete()
         return Response(serializer.errors, status=400)
 
 
