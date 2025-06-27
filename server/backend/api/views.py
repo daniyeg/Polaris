@@ -171,20 +171,28 @@ def add_test(request):
     if not type_ or type_ not in TEST_SERIALIZER_MAP:
         return Response({'error': 'Invalid or missing test type'}, status=400)
 
-    # 🔧 Convert phone number string → User instance
+    # 🔍 Lookup: phone_number → User instance
     try:
         user = User.objects.get(phone_number=request.data.get('phone_number'))
     except User.DoesNotExist:
         return Response({'error': 'User not found with given phone number'}, status=400)
 
+    # 🔍 Lookup: cell_info ID → CellInfo instance
+    try:
+        cell_info = CellInfo.objects.get(id=request.data.get('cell_info'))
+    except CellInfo.DoesNotExist:
+        return Response({'error': 'CellInfo not found with given ID'}, status=400)
+
+    # ✅ Create base Test
     test = Test.objects.create(
         phone_number=user,
         timestamp=request.data.get('timestamp'),
-        cell_info=request.data.get('cell_info')
+        cell_info=cell_info
     )
 
+    # ✅ Create subtype
     subtype_data = dict(request.data.get('detail', {}))
-    subtype_data['id'] = test.id  # Set FK
+    subtype_data['id'] = test.id
 
     serializer_class = TEST_SERIALIZER_MAP[type_]
     serializer = serializer_class(data=subtype_data)
