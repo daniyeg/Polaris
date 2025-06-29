@@ -1,13 +1,28 @@
-package com.beyond5g.polaris
-
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
-import com.example.app.data.dao.TestDao
-import com.example.app.data.entities.Test
+import com.beyond5g.polaris.Test
+import com.beyond5g.polaris.TestDao
 
 @Database(entities = [Test::class], version = 1)
-@TypeConverters(DateConverter::class) // for timestamp Date conversion
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun testDao(): TestDao
+//    abstract fun testDao(): TestDao
+//
+//    companion object {
+//        @Volatile
+//        private var INSTANCE: AppDatabase? = null
+//
+//        fun getDatabase(context: Context): AppDatabase {
+//            return INSTANCE ?: synchronized(this) {
+//                val instance = Room.databaseBuilder(
+//                    context.applicationContext,
+//                    AppDatabase::class.java,
+//                    "internal_app_db"
+//                ).build()
+//                INSTANCE = instance
+//                instance
+//            }
+//        }
+//    }
 }

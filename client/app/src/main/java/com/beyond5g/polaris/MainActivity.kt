@@ -23,24 +23,27 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        // ✅ Initialize and insert a test row into the database
-        val db = DatabaseProvider.getDatabase(applicationContext)
-        val dao = db.testDao()
+        // ✅ Use AppDatabase to insert Test row in IO thread
+//        val db = AppDatabase.getDatabase(applicationContext)
+//        val dao = db.testDao()
+
         val test = Test(
-            phonenumber = "09123456789",
+            phone_number = "09123456789",
             timestamp = System.currentTimeMillis(),
             cell_info_id = 1
         )
 
-        CoroutineScope(Dispatchers.IO).launch {
-            dao.insert(test)
-        }
+//        CoroutineScope(Dispatchers.IO).launch {
+//            dao.insert(test)
+//        }
 
+        // ✅ Show UI
         setContent {
             PolarisTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
                     Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
@@ -64,7 +67,29 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-            sendUserData()
+//            sendItem("hmmmmmm")
+//            sendTest(
+//                type_ = "http_download",
+//                phoneNumber = "5235244",
+//                timestamp = "2025-06-29T05:03:31.821Z",
+//                cellInfo = 1,
+//                detail = mapOf("throughput" to "50.0")
+//            )
+
+            sendCellInfo(
+                phoneNumber = "5235242",
+                lat = 35.6892,
+                lng = 51.3890,
+                timestamp = "2025-06-29T10:00:00.000Z",
+                gen = "4G",
+                tech = "NR",
+                plmn = "43211",
+                cid = 123456,
+                rsrp = -95.0,
+                rsrq = -10.0
+            )
+
+
         }) {
             Text("Send Data")
         }
