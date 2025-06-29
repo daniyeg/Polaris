@@ -137,7 +137,7 @@ def login_user(request):
     user = serializer.validated_data['user']
     login(request, user)  
 
-    token, _ = Token.objects.get_or_add(user=user)
+    token, _ = Token.objects.get_or_create(user=user)
 
     return Response({
         "message": "Login successful",
