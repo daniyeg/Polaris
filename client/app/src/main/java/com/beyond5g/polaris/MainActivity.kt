@@ -1,5 +1,6 @@
 package com.beyond5g.polaris
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.activity.ComponentActivity
@@ -23,69 +24,18 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
+        val token = sharedPref.getString("token", null)
 
-        setContent {
-            PolarisTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+        if (token != null) {
+
+        } else {
+            val intent = Intent(this, LoginActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
         }
+
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "Hello $name!")
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            sendItem("hmmmmmm")
-
-            sendTest(
-                type_ = "http_download",
-                phoneNumber = "5235244",
-                timestamp = "2025-06-29T05:03:31.821Z",
-                cellInfo = 1,
-                detail = mapOf("throughput" to "500.0")
-            )
-
-            sendCellInfo(
-                phoneNumber = "5235242",
-                lat = 35.6892,
-                lng = 51.3890,
-                timestamp = "2025-06-29T10:00:00.000Z",
-                gen = "4G",
-                tech = "NR",
-                plmn = "43211",
-                cid = 123456,
-                rsrp = -95.0,
-                rsrq = -10.0
-            )
-
-
-        }) {
-            Text("Send Data")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PolarisTheme {
-        Greeting("Android")
-    }
-}

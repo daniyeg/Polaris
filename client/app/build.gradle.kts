@@ -47,6 +47,10 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("androidx.room:room-runtime:2.5.2")
     implementation("androidx.room:room-ktx:2.5.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+
+    implementation(libs.play.services.location)
+    implementation(libs.androidx.appcompat)
 //    kapt("androidx.room:room-compiler:2.5.2")
     kapt(libs.room.compiler)  // Use kapt here
 
