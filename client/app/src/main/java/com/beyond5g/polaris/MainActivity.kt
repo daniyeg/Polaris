@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -22,6 +23,13 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private lateinit var locationHelper: LocationHelper
@@ -144,6 +152,8 @@ class MainActivity : ComponentActivity() {
                             Text("Get Location & Network")
                         }
                     }
+
+
                 }
             }
         }
@@ -174,7 +184,46 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(text = "Hello $name!", modifier = modifier)
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(text = "Hello $name!")
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(onClick = {
+            sendItem("hmmmmmm")
+
+            sendTest(
+                type_ = "http_download",
+                phoneNumber = "5235244",
+                timestamp = "2025-06-29T05:03:31.821Z",
+                cellInfo = 1,
+                detail = mapOf("throughput" to "500.0")
+            )
+
+            sendCellInfo(
+                phoneNumber = "5235242",
+                lat = 35.6892,
+                lng = 51.3890,
+                timestamp = "2025-06-29T10:00:00.000Z",
+                gen = "4G",
+                tech = "NR",
+                plmn = "43211",
+                cid = 123456,
+                rsrp = -95.0,
+                rsrq = -10.0
+            )
+
+
+        }) {
+            Text("Send Data")
+        }
+    }
 }
 
 @Preview(showBackground = true)
