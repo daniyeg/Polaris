@@ -10,11 +10,11 @@ plugins {
 
 android {
     namespace = "com.beyond5g.polaris"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.beyond5g.polaris"
-        minSdk = 28
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -58,6 +58,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.play.services.location)
+    implementation(libs.androidx.appcompat)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
