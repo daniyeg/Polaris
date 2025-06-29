@@ -25,11 +25,11 @@ class CellDetector(private val context: Context) {
     var arfcn: Int? = null
     var band: String? = null
     var frequencyMHz: Double? = null
-    var rsrp : Int? = null
-    var rsrq : Int? = null
-    var rscp : Int? = null
-    var ecn0 : Int? = null
-    var rxlev : Int? = null
+    var rsrp : Double? = null
+    var rsrq : Double? = null
+    var rscp : Double? = null
+    var ecn0 : Double? = null
+    var rxlev : Double? = null
 
 
 
@@ -271,7 +271,7 @@ class CellDetector(private val context: Context) {
                 tac = null
                 type = "GSM"
                 arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.arfcn else null
-                rxlev = signal.dbm
+                rxlev = signal.dbm.toDouble()
 
                 arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.arfcn else null
                 band = arfcn?.let { getGsmBandFromARFCN(it) }
@@ -295,7 +295,7 @@ class CellDetector(private val context: Context) {
                 tac = null
                 type = "WCDMA"
                 arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.uarfcn else null
-                ecn0 = signal.ecNo
+                ecn0 = signal.ecNo.toDouble()
 //                rscp = signal.rscp
                 rsrp = null
                 rsrq = null
@@ -318,8 +318,8 @@ class CellDetector(private val context: Context) {
                 type = "LTE"
                 arfcn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) identity.earfcn else null
                 band = arfcn?.let { getLteBandFromArfcn(it) }
-                rsrp = signal.rsrp
-                rsrq = signal.rsrq
+                rsrp = signal.rsrp.toDouble()
+                rsrq = signal.rsrq.toDouble()
                 ecn0 = null
                 rxlev = null
                 rscp = null

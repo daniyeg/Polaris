@@ -51,6 +51,7 @@ dependencies {
 
     implementation(libs.play.services.location)
     implementation(libs.androidx.appcompat)
+    //implementation(libs.mediation.test.suite)
 //    kapt("androidx.room:room-compiler:2.5.2")
     kapt(libs.room.compiler)  // Use kapt here
 

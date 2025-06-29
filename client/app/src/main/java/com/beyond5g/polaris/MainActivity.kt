@@ -27,8 +27,11 @@ class MainActivity : ComponentActivity() {
         val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
         val token = sharedPref.getString("token", null)
 
-        if (token != null) {
-
+        if (true) { // token != null
+            val intent = Intent(this, HomeActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
         } else {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
