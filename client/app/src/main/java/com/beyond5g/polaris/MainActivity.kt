@@ -24,21 +24,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // ✅ Use AppDatabase to insert Test row in IO thread
-//        val db = AppDatabase.getDatabase(applicationContext)
-//        val dao = db.testDao()
-
-        val test = Test(
-            phone_number = "09123456789",
-            timestamp = System.currentTimeMillis(),
-            cell_info_id = 1
-        )
-
-//        CoroutineScope(Dispatchers.IO).launch {
-//            dao.insert(test)
-//        }
-
-        // ✅ Show UI
         setContent {
             PolarisTheme {
                 Scaffold(
@@ -67,14 +52,15 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(onClick = {
-//            sendItem("hmmmmmm")
-//            sendTest(
-//                type_ = "http_download",
-//                phoneNumber = "5235244",
-//                timestamp = "2025-06-29T05:03:31.821Z",
-//                cellInfo = 1,
-//                detail = mapOf("throughput" to "50.0")
-//            )
+            sendItem("hmmmmmm")
+
+            sendTest(
+                type_ = "http_download",
+                phoneNumber = "5235244",
+                timestamp = "2025-06-29T05:03:31.821Z",
+                cellInfo = 1,
+                detail = mapOf("throughput" to "500.0")
+            )
 
             sendCellInfo(
                 phoneNumber = "5235242",
