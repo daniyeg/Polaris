@@ -32,6 +32,8 @@ class Connector {
                     } else {
                         Log.e("API", "Server error (${response.code}): $responseBody")
                     }
+
+                    return responseBody
                 }
             })
         }
@@ -109,6 +111,29 @@ class Connector {
 
             sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_cell_info/", json)
         }
+
+        fun sendTest(
+            type_: String,
+            phoneNumber: String,
+            timestamp: String,
+            cellInfo: Int,
+            prop: String,
+            propVal: String,
+
+        ) {
+            val detailJson = JSONObject()
+            detailJson.put(prop, propVal)
+
+            val json = JSONObject()
+            json.put("type_", type_)
+            json.put("phone_number", phoneNumber)
+            json.put("timestamp", timestamp)
+            json.put("cell_info", cellInfo)
+            json.put("detail", detailJson)
+
+            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_test/", json)
+        }
+
 
         fun sendLogin(identifier: String, password: String) {
             val json = JSONObject()

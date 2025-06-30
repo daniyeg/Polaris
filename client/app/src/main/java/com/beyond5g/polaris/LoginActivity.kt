@@ -18,14 +18,18 @@ class LoginActivity : ComponentActivity() {
             val username = findViewById<EditText>(R.id.username).text.toString()
             val password = findViewById<EditText>(R.id.password).text.toString()
 
-            val validated = true
-            if (validated){
+            responseBody = Connector.sendLogin(username, password)
+
+            val validated = false
+
+            if (validated) {
+                val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
+                sharedPref.edit().putBoolean("is_logged_in", true).apply()
+
                 val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
+                finish()
             }
-
         }
-
-
     }
 }

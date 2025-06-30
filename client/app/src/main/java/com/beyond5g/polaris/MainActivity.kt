@@ -24,21 +24,17 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
-        val token = sharedPref.getString("token", null)
 
-        if (true) { // token != null
-            val intent = Intent(this, HomeActivity::class.java)
-            startActivity(intent)
-            finish()
-            return
+        val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
+        val isLoggedIn = sharedPref.getBoolean("is_logged_in", false)
+
+        val intent = if (isLoggedIn) {
+            Intent(this, LoginActivity::class.java)
         } else {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-            return
+            Intent(this, LoginActivity::class.java)
         }
 
+        startActivity(intent)
+        finish()
     }
 }
-
