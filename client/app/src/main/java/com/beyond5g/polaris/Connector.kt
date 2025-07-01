@@ -9,9 +9,10 @@ import java.io.IOException
 
 class Connector {
     companion object {
-        private fun sendJsonToApi(apiUrl: String, json: JSONObject) {
-            val client = OkHttpClient()
 
+        // Overload: No callbacks (for fire-and-forget requests)
+        fun sendJsonToApi(apiUrl: String, json: JSONObject) {
+            val client = OkHttpClient()
             val mediaType = "application/json; charset=utf-8".toMediaType()
             val body = json.toString().toRequestBody(mediaType)
 
@@ -32,38 +33,40 @@ class Connector {
                     } else {
                         Log.e("API", "Server error (${response.code}): $responseBody")
                     }
-
-                    return responseBody
                 }
             })
         }
 
-        fun sendItem(name: String) {
-            val json = JSONObject()
-            json.put("name", name)
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add/", json)
-        }
-
-        fun sendTest(
-            type_: String,
-            phoneNumber: String,
-            timestamp: String,
-            cellInfo: Int,
-            detail: Map<String, String>
+        // Overload: With callbacks
+        fun sendJsonToApi(
+            apiUrl: String,
+            json: JSONObject,
+            onSuccess: (String) -> Unit,
+            onError: (String) -> Unit
         ) {
-            val detailJson = JSONObject()
-            for ((key, value) in detail) {
-                detailJson.put(key, value)
-            }
+            val client = OkHttpClient()
+            val mediaType = "application/json; charset=utf-8".toMediaType()
+            val body = json.toString().toRequestBody(mediaType)
 
-            val json = JSONObject()
-            json.put("type_", type_)
-            json.put("phone_number", phoneNumber)
-            json.put("timestamp", timestamp)
-            json.put("cell_info", cellInfo)
-            json.put("detail", detailJson)
+            val request = Request.Builder()
+                .url(apiUrl)
+                .post(body)
+                .build()
 
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_test/", json)
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    onError("Network error: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseBody = response.body?.string() ?: ""
+                    if (response.isSuccessful) {
+                        onSuccess(responseBody)
+                    } else {
+                        onError("Server error: $responseBody")
+                    }
+                }
+            })
         }
 
         fun sendCellInfo(
@@ -118,8 +121,7 @@ class Connector {
             timestamp: String,
             cellInfo: Int,
             prop: String,
-            propVal: String,
-
+            propVal: String
         ) {
             val detailJson = JSONObject()
             detailJson.put(prop, propVal)
@@ -134,42 +136,100 @@ class Connector {
             sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_test/", json)
         }
 
-
-        fun sendLogin(identifier: String, password: String) {
+        fun sendLogin(
+            identifier: String,
+            password: String,
+            onResult: (Boolean, String?) -> Unit
+        ) {
             val json = JSONObject()
             json.put("identifier", identifier)
             json.put("password", password)
 
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/login/", json)
+            sendJsonToApi(
+                "https://polaris-server-30ha.onrender.com/api/login/",
+                json,
+                onSuccess = { response ->
+
+                    try {
+                        val jsonResponse = JSONObject(response)
+                        val token = jsonResponse.getString("token")
+                        onResult(true, token)
+                        Log.d("LOGIN_DEBUG", "Right,  Sending JSON: $json")
+
+
+                    } catch (e: Exception) {
+                        onResult(false, null)
+                    }
+                },
+                onError = {
+                    onResult(false, null)
+                    Log.d("LOGIN_DEBUG", "Error,  Sending JSON: $json")
+
+                }
+            )
         }
 
-        fun sendLogout() {
+        fun sendLogout(onResult: (Boolean) -> Unit) {
             val emptyJson = JSONObject()
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/logout/", emptyJson)
+            sendJsonToApi(
+                "https://polaris-server-30ha.onrender.com/api/logout/",
+                emptyJson,
+                onSuccess = { onResult(true) },
+                onError = { onResult(false) }
+            )
         }
 
-        fun sendRequestOtp(phoneNumber: String) {
+        fun sendRequestOtp(phoneNumber: String, onResult: (Boolean, String?) -> Unit) {
             val json = JSONObject()
             json.put("phone_number", phoneNumber)
 
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/request_otp/", json)
+            sendJsonToApi(
+                "https://polaris-server-30ha.onrender.com/api/request_otp/",
+                json,
+                onSuccess = { response ->
+                    onResult(true, response)
+                },
+                onError = { error ->
+                    onResult(false, error)
+                }
+            )
         }
 
-        fun sendSignUp(username: String, password: String, phoneNumber: String) {
+
+        fun sendSignUp(
+            username: String,
+            password: String,
+            phoneNumber: String,
+            onResult: (Boolean) -> Unit
+        ) {
             val json = JSONObject()
             json.put("username", username)
             json.put("password", password)
             json.put("phone_number", phoneNumber)
 
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/signup/", json)
+            sendJsonToApi(
+                "https://polaris-server-30ha.onrender.com/api/signup/",
+                json,
+                onSuccess = { onResult(true) },
+                onError = { onResult(false) }
+            )
         }
 
-        fun sendVerifyOtp(phoneNumber: String, otpCode: String) {
+        fun sendVerifyOtp(
+            phoneNumber: String,
+            otpCode: String,
+            onResult: (Boolean) -> Unit
+        ) {
             val json = JSONObject()
             json.put("phone_number", phoneNumber)
             json.put("otp_code", otpCode)
 
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/verify_otp/", json)
+            sendJsonToApi(
+                "https://polaris-server-30ha.onrender.com/api/verify_otp/",
+                json,
+                onSuccess = { onResult(true) },
+                onError = { onResult(false) }
+            )
         }
     }
 }

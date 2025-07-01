@@ -79,44 +79,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         />
 
-    <EditText
-        android:id="@+id/code"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/edittext_background"
-        android:hint="Code"
-        android:textAlignment="center"
 
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.4"
-        app:layout_constraintHeight_percent="0.05"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.8"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.25"
-        />
-
-    <Button
-        android:id="@+id/sendcode"
-        android:background="@drawable/button_background"
-
-        android:text="Send Code"
-        tools:layout_editor_absoluteX="261dp"
-        tools:layout_editor_absoluteY="626dp"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintWidth_percent="0.3"
-        app:layout_constraintHeight_percent="0.06"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.81"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.80"
-
-        />
 
     <Button
         android:id="@+id/confirm"

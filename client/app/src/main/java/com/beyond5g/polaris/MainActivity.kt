@@ -2,24 +2,8 @@ package com.beyond5g.polaris
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.beyond5g.polaris.ui.theme.PolarisTheme
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,10 +11,17 @@ class MainActivity : ComponentActivity() {
 
         val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
         val isLoggedIn = sharedPref.getBoolean("is_logged_in", false)
+        val loginTime = sharedPref.getLong("login_time", 0L)
 
-        val intent = if (isLoggedIn) {
-            Intent(this, LoginActivity::class.java)
+        val sessionDurationLimit = 1 * 60 * 1000 // 30 minutes in milliseconds
+        val currentTime = System.currentTimeMillis()
+
+        val isSessionValid = isLoggedIn && (currentTime - loginTime < sessionDurationLimit)
+
+        val intent = if (isSessionValid) {
+            Intent(this, HomeActivity::class.java)
         } else {
+            sharedPref.edit().clear().apply() // session expired, clear
             Intent(this, LoginActivity::class.java)
         }
 
@@ -38,3 +29,4 @@ class MainActivity : ComponentActivity() {
         finish()
     }
 }
+

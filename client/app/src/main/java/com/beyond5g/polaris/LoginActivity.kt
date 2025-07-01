@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
 
@@ -14,21 +16,44 @@ class LoginActivity : ComponentActivity() {
         setContentView(R.layout.login)
 
         val confirmButton = findViewById<Button>(R.id.confirm)
+        val usernameEditText = findViewById<EditText>(R.id.username)
+        val passwordEditText = findViewById<EditText>(R.id.password)
+        val signupText = findViewById<TextView>(R.id.signupText)
+
+        signupText.setOnClickListener(){
+            startActivity(Intent(this, SignupActivity::class.java))
+
+        }
         confirmButton.setOnClickListener {
-            val username = findViewById<EditText>(R.id.username).text.toString()
-            val password = findViewById<EditText>(R.id.password).text.toString()
+            val username = usernameEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
 
-            responseBody = Connector.sendLogin(username, password)
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-            val validated = false
+            Connector.sendLogin(username, password) { success, token ->
+                runOnUiThread {
 
-            if (validated) {
-                val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
-                sharedPref.edit().putBoolean("is_logged_in", true).apply()
+                    if (success) {
 
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
+                        val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
+                        val currentTime = System.currentTimeMillis()
+                        sharedPref.edit()
+                            .putBoolean("is_logged_in", true)
+                            .putLong("login_time", currentTime)
+                            .putString("token", token)
+                            .apply()
+
+
+                        Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, HomeActivity::class.java))
+                        finish()
+                    } else {
+                        Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
+                    }
+                }
             }
         }
     }
