@@ -19,4 +19,6 @@ urlpatterns = [
     path('get_cell_infos/', views.get_cell_info, name='get_cell_infos'),
     path('get_tests/', views.get_tests, name='get_tests'),
 
+    path("download_test/", views.http_download_test, name='http_download_test'),
+
 ]

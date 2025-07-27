@@ -19,6 +19,7 @@ from django.contrib.auth import logout
 from django.shortcuts import get_object_or_404
 from datetime import timedelta
 from django.utils import timezone
+from django.http import StreamingHttpResponse
 
 TEST_SERIALIZER_MAP = {
     'http_download': HTTPDownloadTestSerializer,
@@ -255,6 +256,23 @@ def get_tests(request):
     serializer = UnifiedTestSerializer(query, many=True)
     return Response(serializer.data)
 
+
+@swagger_auto_schema(method='get')
+@api_view(['GET'])
+def http_download_test(request):
+    chunk_size = 1024  
+    total_size = 1024 * 1024
+
+    def generate():
+        sent = 0
+        while sent < total_size:
+            yield b'\0' * chunk_size
+            sent += chunk_size
+
+    response = StreamingHttpResponse(generate(), content_type='application/octet-stream')
+    response['Content-Disposition'] = 'attachment; filename="1mb_test.bin"'
+    response['Content-Length'] = str(total_size)
+    return response
 
 
 @swagger_auto_schema(method='get')
