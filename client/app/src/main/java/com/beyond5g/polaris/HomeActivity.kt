@@ -34,7 +34,15 @@ class HomeActivity : ComponentActivity() {
                     1
                 )
             } else {
-                if (true) {
+                if (true){
+                    val tester = Test()
+                    val url = "http://test.ftp.otenet.gr/files/test1Mb.db"
+
+                    tester.httpDownloadTest(url) { throughput, sizeMB, duration ->
+                        println("Downloaded: %.2f MB in %.2f s".format(sizeMB, duration))
+                        println("Throughput: %.2f Mbps".format(throughput))
+                    }
+                }else if (true) {
                     val cellInfoId = 4
                     val timestamp = java.time.LocalDateTime.now()
                         .toString()

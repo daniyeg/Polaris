@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         val isLoggedIn = sharedPref.getBoolean("is_logged_in", false)
         val loginTime = sharedPref.getLong("login_time", 0L)
 
-        val sessionDurationLimit = 1 * 60 * 1000 // 30 minutes in milliseconds
+        val sessionDurationLimit = 30 * 60 * 1000 // 30 minutes in milliseconds
         val currentTime = System.currentTimeMillis()
 
         val isSessionValid = isLoggedIn && (currentTime - loginTime < sessionDurationLimit)
