@@ -275,6 +275,8 @@ def http_download_test(request):
     return response
 
 
+@swagger_auto_schema(method='post')
+@api_view(['POST'])
 def http_upload_test(request):
     if request.method == "POST" and request.FILES.get("file"):
         uploaded_file = request.FILES["file"]
