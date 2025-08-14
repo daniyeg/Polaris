@@ -20,5 +20,7 @@ urlpatterns = [
     path('get_tests/', views.get_tests, name='get_tests'),
 
     path("download_test/", views.http_download_test, name='http_download_test'),
+    path("upload_test/", views.http_upload_test, name='http_upload_test'),
+
 
 ]

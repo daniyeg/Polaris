@@ -275,6 +275,19 @@ def http_download_test(request):
     return response
 
 
+def http_upload_test(request):
+    if request.method == "POST" and request.FILES.get("file"):
+        uploaded_file = request.FILES["file"]
+        size_bytes = uploaded_file.size
+        size_mb = size_bytes / (1024 * 1024)
+
+        return JsonResponse({
+            "status": "success",
+            "file_size_mb": round(size_mb, 2)
+        })
+    return JsonResponse({"status": "error", "message": "No file uploaded"}, status=400)
+
+
 @swagger_auto_schema(method='get')
 @api_view(['GET'])
 def get_item(request):
