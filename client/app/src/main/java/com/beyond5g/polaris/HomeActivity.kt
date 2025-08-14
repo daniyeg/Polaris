@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
+import com.beyond5g.polaris.Connector.Companion.httpDownload
 
 class HomeActivity : ComponentActivity() {
 
@@ -35,13 +36,18 @@ class HomeActivity : ComponentActivity() {
                 )
             } else {
                 if (true){
-                    val tester = Test()
-                    val url = "http://test.ftp.otenet.gr/files/test1Mb.db"
 
-                    tester.httpDownloadTest(url) { throughput, sizeMB, duration ->
-                        println("Downloaded: %.2f MB in %.2f s".format(sizeMB, duration))
-                        println("Throughput: %.2f Mbps".format(throughput))
-                    }
+                    httpDownload(
+                        "https://polaris-server-30ha.onrender.com/api/download_test/",
+                        onSuccess = { mbps ->
+                            Log.d("API", "Throughput: %.2f Mbps".format(mbps))
+                        },
+                        onError = { error ->
+                            Log.e("API", error)
+                        }
+                    )
+
+
                 }else if (true) {
                     val cellInfoId = 4
                     val timestamp = java.time.LocalDateTime.now()

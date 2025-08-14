@@ -6,6 +6,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
+import kotlin.system.measureTimeMillis
 
 class Connector {
     companion object {
@@ -135,6 +136,47 @@ class Connector {
 
             sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_test/", json)
         }
+
+        fun httpDownload(
+            apiUrl: String,
+            onSuccess: (Double) -> Unit,
+            onError: (String) -> Unit
+        ) {
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url(apiUrl)
+                .get()
+                .build()
+
+            val startTime = System.nanoTime()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    onError("Network error: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    if (!response.isSuccessful) {
+                        onError("Server error (${response.code})")
+                        return
+                    }
+
+                    val bytes = response.body?.bytes() ?: ByteArray(0)
+                    val endTime = System.nanoTime()
+
+                    val elapsedSeconds = (endTime - startTime) / 1_000_000_000.0
+                    val bits = bytes.size * 8.0
+                    val throughputMbps = bits / elapsedSeconds / 1_000_000  // megabits per second
+
+                    Log.d("LOGIN_DEBUG", "seconds: $elapsedSeconds")
+                    Log.d("LOGIN_DEBUG", "size: $bits")
+
+                    onSuccess(throughputMbps)
+                }
+            })
+        }
+
+
 
         fun sendLogin(
             identifier: String,
