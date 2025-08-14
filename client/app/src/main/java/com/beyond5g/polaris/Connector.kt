@@ -6,8 +6,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.IOException
-import kotlin.system.measureTimeMillis
+import java.util.*
 
+import kotlin.random.Random
 class Connector {
     companion object {
 
@@ -136,6 +137,58 @@ class Connector {
 
             sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_test/", json)
         }
+
+
+        fun httpUpload(
+            apiUrl: String,
+            onSuccess: (Double) -> Unit,
+            onError: (String) -> Unit
+        ) {
+            val client = OkHttpClient()
+
+            // Generate a 1MB random byte array
+            val sizeBytes = 1 * 1024 * 1024
+            val byteArray = ByteArray(sizeBytes)
+            Random.Default.nextBytes(byteArray)
+
+            // Create a request body for the file
+            val fileBody = byteArray.toRequestBody("application/octet-stream".toMediaType())
+
+            // Multipart form data
+            val requestBody = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("file", "test.bin", fileBody)
+                .build()
+
+            val request = Request.Builder()
+                .url(apiUrl)
+                .post(requestBody)
+                .build()
+
+            val startTime = System.nanoTime()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    onError("Network error: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val endTime = System.nanoTime()
+
+                    if (!response.isSuccessful) {
+                        onError("Server error (${response.code})")
+                        return
+                    }
+
+                    val elapsedSeconds = (endTime - startTime) / 1_000_000_000.0
+                    val bits = sizeBytes * 8.0
+                    val throughputMbps = bits / elapsedSeconds / 1_000_000
+
+                    onSuccess(throughputMbps)
+                }
+            })
+        }
+
 
         fun httpDownload(
             apiUrl: String,

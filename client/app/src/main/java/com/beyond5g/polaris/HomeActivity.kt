@@ -9,6 +9,7 @@ import android.widget.Button
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import com.beyond5g.polaris.Connector.Companion.httpDownload
+import com.beyond5g.polaris.Connector.Companion.httpUpload
 
 class HomeActivity : ComponentActivity() {
 
@@ -37,10 +38,11 @@ class HomeActivity : ComponentActivity() {
             } else {
                 if (true){
 
-                    httpDownload(
-                        "https://polaris-server-30ha.onrender.com/api/download_test/",
+
+                    httpUpload(
+                        "https://polaris-server-30ha.onrender.com/api/upload_test/",
                         onSuccess = { mbps ->
-                            Log.d("API", "Throughput: %.2f Mbps".format(mbps))
+                            Log.d("API", "Upload speed: %.2f Mbps".format(mbps))
                         },
                         onError = { error ->
                             Log.e("API", error)
