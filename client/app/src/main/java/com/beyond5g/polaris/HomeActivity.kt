@@ -6,18 +6,23 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.CheckBox
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import com.beyond5g.polaris.Connector.Companion.httpDownload
 import com.beyond5g.polaris.Connector.Companion.httpUpload
-
+import com.beyond5g.polaris.Connector.Companion.dnsResolution
+import com.beyond5g.polaris.Connector.Companion.pingResponse
+import com.beyond5g.polaris.Connector.Companion.webAnswer
+import org.json.JSONException
+import org.json.JSONObject
+import okhttp3.ResponseBody
 class HomeActivity : ComponentActivity() {
 
     private lateinit var cellDetector: CellDetector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContentView(R.layout.home)
 
         cellDetector = CellDetector(this)
@@ -32,25 +37,86 @@ class HomeActivity : ComponentActivity() {
             ) {
                 ActivityCompat.requestPermissions(
                     this,
-                    arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.SEND_SMS,
+                        Manifest.permission.RECEIVE_SMS,
+                        Manifest.permission.READ_SMS
+                    ),
                     1
                 )
             } else {
-                if (true){
+                if (false) {
+                    // ------------------- TESTS -------------------
+                    val checkbox_sms = findViewById<CheckBox>(R.id.checkbox_sms).isChecked
+                    val checkbox_dns = findViewById<CheckBox>(R.id.checkbox_dns).isChecked
+                    val checkbox_ping = findViewById<CheckBox>(R.id.checkbox_ping).isChecked
+                    val checkbox_download = findViewById<CheckBox>(R.id.checkbox_download).isChecked
+                    val checkbox_upload = findViewById<CheckBox>(R.id.checkbox_upload).isChecked
+                    val checkbox_web = findViewById<CheckBox>(R.id.checkbox_web).isChecked
 
+                    var dnsTimeMs: Double? = null
+                    var pingTimeMs: Double? = null
+                    var downloadMbps: Double? = null
+                    var uploadMbps: Double? = null
+                    var webAnswerMs: Double? = null
 
-                    httpUpload(
-                        "https://polaris-server-30ha.onrender.com/api/upload_test/",
-                        onSuccess = { mbps ->
-                            Log.d("API", "Upload speed: %.2f Mbps".format(mbps))
-                        },
-                        onError = { error ->
-                            Log.e("API", error)
-                        }
-                    )
+                    if (checkbox_sms) {
+                        // TODO: implement SMS test
+                    }
 
+                    if (checkbox_dns) {
+                        dnsResolution(
+                            onSuccess = { ms ->
+                                dnsTimeMs = ms
+                                Log.d("DNS", "DNS resolution time: %.2f ms".format(ms))
+                            },
+                            onError = { error -> Log.e("DNS", error) }
+                        )
+                    }
 
-                }else if (true) {
+                    if (checkbox_ping) {
+                        pingResponse(
+                            onSuccess = { ms ->
+                                pingTimeMs = ms
+                                Log.d("PING", "Ping Time: %.2f ms".format(ms))
+                            },
+                            onError = { error -> Log.e("PING", error) }
+                        )
+                    }
+
+                    if (checkbox_download) {
+                        httpDownload(
+                            onSuccess = { mbps ->
+                                downloadMbps = mbps
+                                Log.d("API", "Download Throughput: %.2f Mbps".format(mbps))
+                            },
+                            onError = { error -> Log.e("API", error) }
+                        )
+                    }
+
+                    if (checkbox_upload) {
+                        httpUpload(
+                            onSuccess = { mbps ->
+                                uploadMbps = mbps
+                                Log.d("API", "Upload Throughput: %.2f Mbps".format(mbps))
+                            },
+                            onError = { error -> Log.e("API", error) }
+                        )
+                    }
+
+                    if (checkbox_web) {
+                        webAnswer(
+                            onSuccess = { ms ->
+                                webAnswerMs = ms
+                                Log.d("API", "Web Answer: %.2f ms".format(ms))
+                            },
+                            onError = { error -> Log.e("API", error) }
+                        )
+                    }
+
+                } else if (false) {
+                    // ------------------- SEND TEST -------------------
                     val cellInfoId = 4
                     val timestamp = java.time.LocalDateTime.now()
                         .toString()
@@ -64,6 +130,7 @@ class HomeActivity : ComponentActivity() {
                         prop = "send_time",
                         propVal = "204"
                     )
+
                 } else {
                     val locationDetector = LocationDetector(this)
                     locationDetector.getCurrentLocation(
@@ -99,7 +166,21 @@ class HomeActivity : ComponentActivity() {
                                         rsrq = cellDetector.rsrq,
                                         rscp = cellDetector.rscp,
                                         ecno = cellDetector.ecn0,
-                                        rxlev = cellDetector.rxlev
+                                        rxlev = cellDetector.rxlev,
+                                        onSuccess = { responseBody ->
+                                            try {
+                                                val json = JSONObject(responseBody.toString())
+                                                val id = json.getInt("id")
+                                                Log.d("Debug", "yo")
+
+                                                Log.d("Debug", "Returned ID: $id")
+                                            } catch (e: JSONException) {
+                                                Log.e("Debug", "Failed to parse ID", e)
+                                            }
+                                        },
+                                        onError = { error ->
+                                            Log.e("Debug", "Error: $error")
+                                        }
                                     )
                                 } else {
                                     Log.e("SendCellInfo", "Missing required fields")
@@ -116,6 +197,7 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
+// Permission request helper
 fun requestPhoneStatePermission(activity: HomeActivity) {
     if (ActivityCompat.checkSelfPermission(
             activity,
