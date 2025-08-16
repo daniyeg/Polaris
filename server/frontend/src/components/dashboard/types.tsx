@@ -8,6 +8,7 @@ export type UEData = {
   lac: number;
   rac: number;
   tac: number;
+  cid: number;
   freq_band: string;
   afrn: number;
   freq: number;
