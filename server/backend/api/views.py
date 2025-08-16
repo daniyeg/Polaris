@@ -129,7 +129,7 @@ def signup_user(request):
     })
 
 
-@swagger_auto_schema(method='get', request_body=GetPhoneSerializer)
+@swagger_auto_schema(method='get')
 @api_view(['GET'])
 def get_phone(request, identifier):
     user = get_object_or_404(User, username=identifier)
