@@ -18,13 +18,13 @@ class RequestOTPSerializer(serializers.Serializer):
         return data
 
 class GetPhoneSerializer(serializers.Serializer):
-    phone_number = serializers.CharField(max_length=15, required=True)
+    username = serializers.CharField(max_length=15, required=True)
 
     def validate(self, data):
-        phone = data['phone_number']
-        if not User.objects.filter(phone_number=phone).exists():
+        username = data['username']
+        if not User.objects.filter(username=username).exists():
             raise serializers.ValidationError({
-                "phone_number": "No user with this phone number exists."
+                "username": "No user with this username exists."
             })
         return data
 
