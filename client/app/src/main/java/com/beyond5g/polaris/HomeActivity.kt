@@ -115,24 +115,9 @@ class HomeActivity : ComponentActivity() {
                         )
                     }
 
-                } else if (false) {
-                    // ------------------- SEND TEST -------------------
-                    val cellInfoId = 4
-                    val timestamp = java.time.LocalDateTime.now()
-                        .toString()
-                        .replace("T", " ")
-
-                    Connector.sendTest(
-                        type_ = "sms",
-                        phoneNumber = "5235244",
-                        timestamp = timestamp,
-                        cellInfo = cellInfoId,
-                        prop = "send_time",
-                        propVal = "204"
-                    )
-
                 } else {
                     val locationDetector = LocationDetector(this)
+
                     locationDetector.getCurrentLocation(
                         onSuccess = { lat, lng ->
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -148,6 +133,7 @@ class HomeActivity : ComponentActivity() {
                                     cellDetector.plmn != null &&
                                     cellDetector.type != null
                                 ) {
+
                                     Connector.sendCellInfo(
                                         phoneNumber = "5235242",
                                         lat = lat,
@@ -167,21 +153,37 @@ class HomeActivity : ComponentActivity() {
                                         rscp = cellDetector.rscp,
                                         ecno = cellDetector.ecn0,
                                         rxlev = cellDetector.rxlev,
-                                        onSuccess = { responseBody ->
-                                            try {
-                                                val json = JSONObject(responseBody.toString())
-                                                val id = json.getInt("id")
-                                                Log.d("Debug", "yo")
+                                        onSuccess = { idOrResponse ->
+                                            Log.d("Debug", "✅ API Success, Returned: $idOrResponse")
+                                            var cellInfoId: Int? = null
 
-                                                Log.d("Debug", "Returned ID: $id")
-                                            } catch (e: JSONException) {
-                                                Log.e("Debug", "Failed to parse ID", e)
-                                            }
+                                            cellInfoId = idOrResponse.toInt()
+
+                                            val timestamp = java.time.LocalDateTime.now()
+                                                .toString()
+                                                .replace("T", " ")
+
+                                            Connector.sendTest(
+                                                type_ = "sms",
+                                                phoneNumber = "5235244",
+                                                timestamp = timestamp,
+                                                cellInfo = cellInfoId,
+                                                prop = "send_time",
+                                                propVal = ,
+                                                onSuccess = { type_ ->
+                                                    Log.d("Debug","test sent")},
+                                                onError = { type_ ->
+                                                    Log.d("Debug","test NOT sent")}
+                                            )
+
+
+
                                         },
                                         onError = { error ->
-                                            Log.e("Debug", "Error: $error")
+                                            Log.e("Debug", "❌ API Error: $error")
                                         }
                                     )
+
                                 } else {
                                     Log.e("SendCellInfo", "Missing required fields")
                                 }
@@ -191,6 +193,9 @@ class HomeActivity : ComponentActivity() {
                             Log.e("Location", "Failed to get location", e)
                         }
                     )
+
+
+
                 }
             }
         }

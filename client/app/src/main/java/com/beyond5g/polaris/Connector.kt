@@ -23,33 +23,6 @@ class Connector {
     companion object {
 
         // Overload: No callbacks (for fire-and-forget requests)
-        fun sendJsonToApi(apiUrl: String, json: JSONObject) {
-            val client = OkHttpClient()
-            val mediaType = "application/json; charset=utf-8".toMediaType()
-            val body = json.toString().toRequestBody(mediaType)
-
-            val request = Request.Builder()
-                .url(apiUrl)
-                .post(body)
-                .build()
-
-            client.newCall(request).enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    Log.e("API", "Request failed: $e")
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    val responseBody = response.body?.string()
-                    if (response.isSuccessful) {
-                        Log.d("API", "Response: $responseBody")
-                    } else {
-                        Log.e("API", "Server error (${response.code}): $responseBody")
-                    }
-                }
-            })
-        }
-
-        // Overload: With callbacks
         fun sendJsonToApi(
             apiUrl: String,
             json: JSONObject,
@@ -67,19 +40,30 @@ class Connector {
 
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
-                    onError("Network error: ${e.message}")
+                    onError("Request failed: ${e.message}")
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    val responseBody = response.body?.string() ?: ""
-                    if (response.isSuccessful) {
-                        onSuccess(responseBody)
+                    val responseBody = response.body?.string()
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            if (jsonResponse.has("id")) {
+                                onSuccess(jsonResponse.get("id").toString())
+                            } else {
+                                onSuccess(responseBody)
+                            }
+                        } catch (e: Exception) {
+                            onSuccess(responseBody) // not JSON, just return raw
+                        }
                     } else {
-                        onError("Server error: $responseBody")
+                        onError("Server error (${response.code}): $responseBody")
                     }
                 }
             })
         }
+
+
 
         fun sendCellInfo(
             phoneNumber: String,
@@ -101,10 +85,10 @@ class Connector {
             rscp: Double? = null,
             ecno: Double? = null,
             rxlev: Double? = null,
-            onSuccess:  (String) -> Unit,
+            onSuccess: (String) -> Unit,
             onError: (String) -> Unit
 
-            ) {
+        ) {
             val json = JSONObject()
             json.put("phone_number", phoneNumber)
             json.put("lat", lat)
@@ -127,7 +111,38 @@ class Connector {
             ecno?.let { json.put("ecno", it) }
             rxlev?.let { json.put("rxlev", it) }
 
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_cell_info/", json)
+            val client = OkHttpClient()
+            val mediaType = "application/json; charset=utf-8".toMediaType()
+            val body = json.toString().toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url("https://polaris-server-30ha.onrender.com/api/add_cell_info/")
+                .post(body)
+                .build()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    onError("Request failed: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseBody = response.body?.string()
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            if (jsonResponse.has("id")) {
+                                onSuccess(jsonResponse.get("id").toString())
+                            } else {
+//                                onSuccess(responseBody)
+                            }
+                        } catch (e: Exception) {
+//                            onSuccess(responseBody) // not JSON, just return raw
+                        }
+                    } else {
+                        onError("Server error (${response.code}): $responseBody")
+                    }
+                }
+            })
         }
 
         fun sendTest(
@@ -136,7 +151,10 @@ class Connector {
             timestamp: String,
             cellInfo: Int,
             prop: String,
-            propVal: String
+            propVal: String,
+            onSuccess: (String) -> Unit,
+            onError: (String) -> Unit
+
         ) {
             val detailJson = JSONObject()
             detailJson.put(prop, propVal)
@@ -148,7 +166,38 @@ class Connector {
             json.put("cell_info", cellInfo)
             json.put("detail", detailJson)
 
-            sendJsonToApi("https://polaris-server-30ha.onrender.com/api/add_test/", json)
+            val client = OkHttpClient()
+            val mediaType = "application/json; charset=utf-8".toMediaType()
+            val body = json.toString().toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url("https://polaris-server-30ha.onrender.com/api/add_test/")
+                .post(body)
+                .build()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    onError("Request failed: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseBody = response.body?.string()
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            if (jsonResponse.has("id")) {
+                                onSuccess(jsonResponse.get("id").toString())
+                            } else {
+                                onSuccess(responseBody)
+                            }
+                        } catch (e: Exception) {
+                            onSuccess(responseBody) // not JSON, just return raw
+                        }
+                    } else {
+                        onError("Server error (${response.code}): $responseBody")
+                    }
+                }
+            })
         }
 
         fun sendSmsWithDeliveryTest(
