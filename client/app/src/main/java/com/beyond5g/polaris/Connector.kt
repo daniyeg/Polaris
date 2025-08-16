@@ -151,7 +151,7 @@ class Connector {
             timestamp: String,
             cellInfo: Int,
             prop: String,
-            propVal: String,
+            propVal: Double?,
             onSuccess: (String) -> Unit,
             onError: (String) -> Unit
 

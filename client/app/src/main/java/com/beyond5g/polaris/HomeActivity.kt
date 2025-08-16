@@ -46,8 +46,6 @@ class HomeActivity : ComponentActivity() {
                     1
                 )
             } else {
-                if (false) {
-                    // ------------------- TESTS -------------------
                     val checkbox_sms = findViewById<CheckBox>(R.id.checkbox_sms).isChecked
                     val checkbox_dns = findViewById<CheckBox>(R.id.checkbox_dns).isChecked
                     val checkbox_ping = findViewById<CheckBox>(R.id.checkbox_ping).isChecked
@@ -55,6 +53,7 @@ class HomeActivity : ComponentActivity() {
                     val checkbox_upload = findViewById<CheckBox>(R.id.checkbox_upload).isChecked
                     val checkbox_web = findViewById<CheckBox>(R.id.checkbox_web).isChecked
 
+                    var smsTimeMs: Double? = null
                     var dnsTimeMs: Double? = null
                     var pingTimeMs: Double? = null
                     var downloadMbps: Double? = null
@@ -115,7 +114,7 @@ class HomeActivity : ComponentActivity() {
                         )
                     }
 
-                } else {
+
                     val locationDetector = LocationDetector(this)
 
                     locationDetector.getCurrentLocation(
@@ -163,18 +162,95 @@ class HomeActivity : ComponentActivity() {
                                                 .toString()
                                                 .replace("T", " ")
 
-                                            Connector.sendTest(
-                                                type_ = "sms",
-                                                phoneNumber = "5235244",
-                                                timestamp = timestamp,
-                                                cellInfo = cellInfoId,
-                                                prop = "send_time",
-                                                propVal = ,
-                                                onSuccess = { type_ ->
-                                                    Log.d("Debug","test sent")},
-                                                onError = { type_ ->
-                                                    Log.d("Debug","test NOT sent")}
-                                            )
+                                            if(checkbox_sms && smsTimeMs != null){
+                                                Connector.sendTest(
+                                                    type_ = "sms",
+                                                    phoneNumber = "5235244",
+                                                    timestamp = timestamp,
+                                                    cellInfo = cellInfoId,
+                                                    prop = "send_time",
+                                                    propVal = smsTimeMs,
+                                                    onSuccess = { type_ ->
+                                                        Log.d("Debug","test sent")},
+                                                    onError = { type_ ->
+                                                        Log.d("Debug","test NOT sent")}
+                                                )
+                                            }
+
+                                            if(checkbox_dns && dnsTimeMs != null){
+                                                Connector.sendTest(
+                                                    type_ = "dns",
+                                                    phoneNumber = "5235244",
+                                                    timestamp = timestamp,
+                                                    cellInfo = cellInfoId,
+                                                    prop = "time",
+                                                    propVal = dnsTimeMs,
+                                                    onSuccess = { type_ ->
+                                                        Log.d("Debug","test sent")},
+                                                    onError = { type_ ->
+                                                        Log.d("Debug","test NOT sent")}
+                                                )
+                                            }
+
+                                            if(checkbox_ping && pingTimeMs != null){
+                                                Connector.sendTest(
+                                                    type_ = "ping",
+                                                    phoneNumber = "5235244",
+                                                    timestamp = timestamp,
+                                                    cellInfo = cellInfoId,
+                                                    prop = "latency",
+                                                    propVal = pingTimeMs,
+                                                    onSuccess = { type_ ->
+                                                        Log.d("Debug","test sent")},
+                                                    onError = { type_ ->
+                                                        Log.d("Debug","test NOT sent")}
+                                                )
+                                            }
+
+                                            if(checkbox_download && downloadMbps != null){
+                                                Connector.sendTest(
+                                                    type_ = "http_download",
+                                                    phoneNumber = "5235244",
+                                                    timestamp = timestamp,
+                                                    cellInfo = cellInfoId,
+                                                    prop = "throughput",
+                                                    propVal = downloadMbps,
+                                                    onSuccess = { type_ ->
+                                                        Log.d("Debug","test sent")},
+                                                    onError = { type_ ->
+                                                        Log.d("Debug","test NOT sent")}
+                                                )
+                                            }
+
+                                            if(checkbox_upload && uploadMbps != null){
+                                                Connector.sendTest(
+                                                    type_ = "http_upload",
+                                                    phoneNumber = "5235244",
+                                                    timestamp = timestamp,
+                                                    cellInfo = cellInfoId,
+                                                    prop = "throughput",
+                                                    propVal = uploadMbps,
+                                                    onSuccess = { type_ ->
+                                                        Log.d("Debug","test sent")},
+                                                    onError = { type_ ->
+                                                        Log.d("Debug","test NOT sent")}
+                                                )
+                                            }
+
+                                            if(checkbox_web && webAnswerMs != null){
+                                                Connector.sendTest(
+                                                    type_ = "web",
+                                                    phoneNumber = "5235244",
+                                                    timestamp = timestamp,
+                                                    cellInfo = cellInfoId,
+                                                    prop = "response_time",
+                                                    propVal = webAnswerMs,
+                                                    onSuccess = { type_ ->
+                                                        Log.d("Debug","test sent")},
+                                                    onError = { type_ ->
+                                                        Log.d("Debug","test NOT sent")}
+                                                )
+                                            }
 
 
 
@@ -196,7 +272,7 @@ class HomeActivity : ComponentActivity() {
 
 
 
-                }
+
             }
         }
     }
