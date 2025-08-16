@@ -19,7 +19,7 @@ class RequestOTPSerializer(serializers.Serializer):
 
 class GetPhoneSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=15, required=True)
-
+    
     def validate(self, data):
         username = data['username']
         if not User.objects.filter(username=username).exists():

@@ -131,7 +131,9 @@ def signup_user(request):
 
 @swagger_auto_schema(method='post', request_body=GetPhoneSerializer)
 @api_view(['POST'])
-def get_phone(request, username):
+def get_phone(request):
+    username = request.data.get('username')
+
     user = get_object_or_404(User, username=username)
     return Response({"phone_number": user.phone_number})
 
