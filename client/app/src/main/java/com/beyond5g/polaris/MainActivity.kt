@@ -14,9 +14,12 @@ class MainActivity : ComponentActivity() {
         val loginTime = sharedPref.getLong("login_time", 0L)
 
         val sessionDurationLimit = 30 * 60 * 1000 // 30 minutes in milliseconds
+
         val currentTime = System.currentTimeMillis()
 
-        val isSessionValid = isLoggedIn && (currentTime - loginTime < sessionDurationLimit)
+        var isSessionValid = isLoggedIn && (currentTime - loginTime < sessionDurationLimit)
+
+        isSessionValid = true
 
         val intent = if (isSessionValid) {
             Intent(this, HomeActivity::class.java)

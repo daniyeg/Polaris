@@ -46,6 +46,8 @@ class LoginActivity : ComponentActivity() {
                             .putString("token", token)
                             .apply()
 
+                        val prefs = getSharedPreferences("polaris", MODE_PRIVATE)
+                        prefs.edit().putString("username", username).apply()
 
                         Toast.makeText(this, "Login successful", Toast.LENGTH_SHORT).show()
                         startActivity(Intent(this, HomeActivity::class.java))

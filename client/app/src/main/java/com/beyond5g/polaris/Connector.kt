@@ -21,8 +21,6 @@ import kotlin.random.Random
 
 class Connector {
     companion object {
-
-        // Overload: No callbacks (for fire-and-forget requests)
         fun sendJsonToApi(
             apiUrl: String,
             json: JSONObject,
@@ -63,7 +61,48 @@ class Connector {
             })
         }
 
+        fun getPhone(
+            username: String?,
+            onSuccess: (String) -> Unit,
+            onError: (String) -> Unit){
 
+
+            val json = JSONObject()
+            json.put("username", username)
+
+
+            val client = OkHttpClient()
+            val mediaType = "application/json; charset=utf-8".toMediaType()
+            val body = json.toString().toRequestBody(mediaType)
+
+            val request = Request.Builder()
+                .url("https://polaris-server-30ha.onrender.com/api/get_phone/")
+                .post(body)
+                .build()
+
+            client.newCall(request).enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    onError("Request failed: ${e.message}")
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    val responseBody = response.body?.string()
+                    if (response.isSuccessful && responseBody != null) {
+                        try {
+                            val jsonResponse = JSONObject(responseBody)
+                            if (jsonResponse.has("phone_number")) {
+                                onSuccess(jsonResponse.get("phone_number").toString())
+                            }
+                        } catch (e: Exception) {
+                            onError("Error : ${e}: $responseBody")
+
+                        }
+                    } else {
+                        onError("Server error (${response.code}): $responseBody")
+                    }
+                }
+            })
+        }
 
         fun sendCellInfo(
             phoneNumber: String,
