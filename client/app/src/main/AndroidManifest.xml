@@ -16,6 +16,9 @@
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_MMS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:allowBackup="true"
@@ -46,6 +49,13 @@
         <activity android:name=".SignupActivity" />
         <activity android:name=".OtpActivity" />
 
+        <service
+            android:name=".DataUploadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+
     </application>
+
 
 </manifest>

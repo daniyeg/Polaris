@@ -52,6 +52,8 @@ dependencies {
 
     implementation(libs.play.services.location)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.runtime.saved.instance.state)
+    implementation(libs.androidx.media3.common.ktx)
     //implementation(libs.mediation.test.suite)
 //    kapt("androidx.room:room-compiler:2.5.2")
     kapt(libs.room.compiler)  // Use kapt here
