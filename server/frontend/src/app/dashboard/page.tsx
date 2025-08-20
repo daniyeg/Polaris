@@ -4,7 +4,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { FaChartPie } from 'react-icons/fa';
-import { FaSignal, FaMapMarkedAlt, FaHistory, FaFilter, FaSignOutAlt } from 'react-icons/fa';
+import { FaMapMarkedAlt, FaHistory, FaFilter, FaSignOutAlt } from 'react-icons/fa';
 import { generateMockData } from '@/components/dashboard/GenerateMockData';
 import { UEData } from '@/components/dashboard/types';
 
@@ -15,7 +15,6 @@ type Filters = {
 };
 
 const MapTab = dynamic(() => import('@/components/dashboard/Tabs/MapTab'));
-const SignalsTab = dynamic(() => import('@/components/dashboard/Tabs/SignalsTab'));
 const HistoryTab = dynamic(() => import('@/components/dashboard/Tabs/HistoryTab'));
 const ChartsTab = dynamic(() => import('@/components/dashboard/Tabs/ChartsTab'));
 
@@ -119,12 +118,6 @@ export default function Dashboard() {
             <FaMapMarkedAlt className="ml-2" /> نقشه
           </button>
           <button
-            className={`py-3 px-6 font-medium flex items-center ${activeTab === 'signals' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
-            onClick={() => setActiveTab('signals')}
-          >
-            <FaSignal className="ml-2" /> سیگنال‌ها
-          </button>
-          <button
             className={`py-3 px-6 font-medium flex items-center ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
             onClick={() => setActiveTab('history')}
           >
@@ -146,7 +139,6 @@ export default function Dashboard() {
           ) : (
             <div className="h-full p-1">
               {activeTab === 'map' && <MapTab data={data} />}
-              {activeTab === 'signals' && <SignalsTab data={data} />}
               {activeTab === 'history' && <HistoryTab data={data} />}
               {activeTab === 'charts' && <ChartsTab data={data} />}
             </div>
