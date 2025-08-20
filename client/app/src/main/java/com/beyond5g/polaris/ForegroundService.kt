@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import java.time.LocalDateTime
 
+
 class DataUploadService : Service() {
 
     companion object {
@@ -35,10 +36,12 @@ class DataUploadService : Service() {
     private lateinit var handler: Handler
     private lateinit var runnable: Runnable
 
+
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
 
+        // Use a background thread looper, not main
         handler = Handler(Looper.getMainLooper())
         runnable = object : Runnable {
             override fun run() {
@@ -75,11 +78,12 @@ class DataUploadService : Service() {
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
 
-//        requestIgnoreBatteryOptimizations()
-
+        // 🔥 FIX #1: remove duplicate call to sendDataToServer()
+        // Only run via handler loop
+        handler.removeCallbacks(runnable) // ensure only one loop
         handler.post(runnable)
-        sendDataToServer()
 
+        // 🔥 FIX #2: Keep service alive if app is swiped away
         return START_STICKY
     }
 
@@ -104,34 +108,41 @@ class DataUploadService : Service() {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
+
     private fun sendDataToServer() {
-        val cellDetector = CellDetector(applicationContext)
-        Log.d("DEBUG", "Service loop executed!")
+        Thread { // 🔥 FIX #3: run in background thread
+            val cellDetector = CellDetector(applicationContext)
+            Log.d("DEBUG", "Service loop executed!")
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Log.e("DEBUG", "Location permission not granted")
-            return
-        }
-
-        val prefs = getSharedPreferences("polaris", MODE_PRIVATE)
-        val username = prefs.getString("username", null)
-
-        if (username == null) {
-            Log.e("DEBUG", "Username not found in shared preferences")
-            return
-        }
-
-        Log.d("DEBUG", "Username: $username")
-
-        Connector.getPhone(username,
-            onSuccess = { phoneNumber ->
-                Log.d("DEBUG", "Phone Number: $phoneNumber")
-                processLocationAndCellData(phoneNumber, cellDetector)
-            },
-            onError = { error ->
-                Log.e("DEBUG", "Failed to get phone number: $error")
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                Log.e("DEBUG", "Location permission not granted")
+                return@Thread
             }
-        )
+
+            val prefs = getSharedPreferences("polaris", MODE_PRIVATE)
+            val username = prefs.getString("username", null)
+
+            if (username == null) {
+                Log.e("DEBUG", "Username not found in shared preferences")
+                return@Thread
+            }
+
+            Log.d("DEBUG", "Username: $username")
+
+            Connector.getPhone(username,
+                onSuccess = { phoneNumber ->
+                    Log.d("DEBUG", "Phone Number: $phoneNumber")
+                    processLocationAndCellData(phoneNumber, cellDetector)
+                },
+                onError = { error ->
+                    Log.e("DEBUG", "Failed to get phone number: $error")
+                }
+            )
+        }.start()
     }
 
     private fun processLocationAndCellData(phoneNumber: String, cellDetector: CellDetector) {
@@ -239,9 +250,7 @@ class DataUploadService : Service() {
     }
 
     private fun performSmsTest(phoneNumber: String, timestamp: String, cellInfoId: Int) {
-        // Implement your SMS test logic here
-        // For now, just log that it would be called
-        Log.d("DEBUG", "SMS test would be performed for cellInfoId: $cellInfoId")
+
     }
 
     private fun performDnsTest(phoneNumber: String, timestamp: String, cellInfoId: Int) {

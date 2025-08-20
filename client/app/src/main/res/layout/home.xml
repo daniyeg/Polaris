@@ -46,7 +46,10 @@
         android:layout_marginTop="316dp"
         android:text="SMS Test"
         android:textColor="#DAFFE1"
-        android:textSize="22sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:buttonTint="@color/teal_200"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -57,8 +60,10 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="272dp"
         android:text="DNS Test"
+        android:buttonTint="@color/teal_200"
         android:textColor="#DAFFE1"
-        android:textSize="22sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -70,7 +75,10 @@
         android:layout_marginTop="316dp"
         android:text="Ping Test"
         android:textColor="#DAFFE1"
-        android:textSize="22sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:buttonTint="@color/teal_200"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -82,7 +90,10 @@
         android:layout_marginTop="360dp"
         android:text="Download Test"
         android:textColor="#DAFFE1"
-        android:textSize="22sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:buttonTint="@color/teal_200"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -94,7 +105,10 @@
         android:layout_marginTop="400dp"
         android:text="Upload Test"
         android:textColor="#DAFFE1"
-        android:textSize="22sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:buttonTint="@color/teal_200"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -106,7 +120,10 @@
         android:layout_marginTop="360dp"
         android:text="Web Test"
         android:textColor="#DAFFE1"
-        android:textSize="22sp"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:buttonTint="@color/teal_200"
+
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -11,10 +11,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Login"
+
+        android:gravity="center"
         android:textColor="#91FF92"
         android:textSize="38sp"
         android:textStyle="bold"
-        android:gravity="center"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintVertical_bias="0.2"
@@ -46,6 +47,8 @@
         android:background="@drawable/edittext_background"
         android:hint="Username"
         android:textAlignment="center"
+        android:textColor="#FFFFFF"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent="0.05"
@@ -62,6 +65,8 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/edittext_background"
         android:hint="Password"
+        android:textColor="#FFFFFF"
+
         android:textAlignment="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -76,8 +81,10 @@
         android:id="@+id/confirm"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/button_background"
+        android:background="@drawable/button_selector"
         android:text="Confirm"
+        android:textColor="#FFFFFF"
+
         app:circularflow_radiusInDP="12"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

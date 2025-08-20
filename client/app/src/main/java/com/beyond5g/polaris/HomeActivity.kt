@@ -49,9 +49,11 @@ class HomeActivity : ComponentActivity() {
                     Log.d("CheckBox", "${buttonView.text} changed to: $isChecked")
                     checkBoxStates[checkBoxId] = isChecked
 
-                    stopServiceWithCheckboxes()
+                    if (isStarted){
+                        stopServiceWithCheckboxes()
 
-                    startServiceWithCheckboxes()
+                        startServiceWithCheckboxes()
+                    }
 
                 }
             }
