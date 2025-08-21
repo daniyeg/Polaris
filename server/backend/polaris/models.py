@@ -9,12 +9,6 @@ class User(AbstractUser):
     
     USERNAME_FIELD = 'phone_number'
 
-
-class Item(models.Model):
-    name = models.CharField(max_length=200)
-    created = models.DateTimeField(auto_now_add=True)
-
-
 class CellInfo(models.Model):
     id = models.AutoField(primary_key=True)
     phone_number = models.ForeignKey(User, on_delete=models.CASCADE, to_field='phone_number')
@@ -25,7 +19,6 @@ class CellInfo(models.Model):
     tech = models.CharField(max_length=50)
     plmn = models.CharField(max_length=20)
     cid = models.BigIntegerField()
-
     lac = models.IntegerField(null=True, blank=True)
     rac = models.IntegerField(null=True, blank=True)
     tac = models.IntegerField(null=True, blank=True)

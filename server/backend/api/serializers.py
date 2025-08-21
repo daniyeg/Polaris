@@ -173,10 +173,6 @@ class SMSTestSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ItemSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Item
-        fields = '__all__'
 
 class UnifiedTestSerializer(serializers.ModelSerializer):
     type_ = serializers.SerializerMethodField()
@@ -224,7 +220,6 @@ class AddTestInputSerializer(serializers.Serializer):
         ('dns', 'dns'),
         ('web', 'web'),
         ('sms', 'sms'),
-        ('item', 'item'),
         
     ],required=True)
     phone_number = serializers.CharField(required=True)

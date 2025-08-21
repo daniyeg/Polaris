@@ -28,7 +28,6 @@ TEST_SERIALIZER_MAP = {
     'dns': DNSTestSerializer,
     'web': WebTestSerializer,
     'sms': SMSTestSerializer,
-    'item': ItemSerializer,
 }
 
 @swagger_auto_schema(method='post', request_body=RequestOTPSerializer)
@@ -297,21 +296,3 @@ def http_upload_test(request):
             "file_size_mb": round(size_mb, 2)
         })
     return JsonResponse({"status": "error", "message": "No file uploaded"}, status=400)
-
-
-@swagger_auto_schema(method='get')
-@api_view(['GET'])
-def get_item(request):
-    items = Item.objects.all()
-    serializer = ItemSerializer(items, many=True)
-    return Response(serializer.data)
-
-
-@swagger_auto_schema(method='post', request_body=ItemSerializer)
-@api_view(['POST'])
-def add_item(request):
-    serializer = ItemSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=400)
