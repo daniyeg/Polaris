@@ -52,7 +52,7 @@ class Connector {
                                 onSuccess(responseBody)
                             }
                         } catch (e: Exception) {
-                            onSuccess(responseBody) // not JSON, just return raw
+                            onSuccess(responseBody)
                         }
                     } else {
                         onError("Server error (${response.code}): $responseBody")
@@ -175,7 +175,7 @@ class Connector {
 //                                onSuccess(responseBody)
                             }
                         } catch (e: Exception) {
-//                            onSuccess(responseBody) // not JSON, just return raw
+//                            onSuccess(responseBody)
                         }
                     } else {
                         onError("Server error (${response.code}): $responseBody")
@@ -230,7 +230,7 @@ class Connector {
                                 onSuccess(responseBody)
                             }
                         } catch (e: Exception) {
-                            onSuccess(responseBody) // not JSON, just return raw
+                            onSuccess(responseBody)
                         }
                     } else {
                         onError("Server error (${response.code}): $responseBody")
@@ -262,7 +262,6 @@ class Connector {
 
             val startTime = System.currentTimeMillis()
 
-            // Register delivery receiver
             ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
                 override fun onReceive(p0: Context?, p1: Intent?) {
                     val endTime = System.currentTimeMillis()
@@ -289,7 +288,6 @@ class Connector {
         ) {
             thread {
                 try {
-                    // Run one ping and exit (-c 1)
                     val process = Runtime.getRuntime().exec("/system/bin/ping -c 1 $host")
                     val startTime = System.nanoTime()
                     val exitCode = process.waitFor()
@@ -315,10 +313,10 @@ class Connector {
             thread {
                 try {
                     val startTime = System.nanoTime()
-                    InetAddress.getByName(hostname) // DNS resolution happens here
+                    InetAddress.getByName(hostname)
                     val endTime = System.nanoTime()
 
-                    val elapsedMs = (endTime - startTime) / 1_000_000.0 // milliseconds
+                    val elapsedMs = (endTime - startTime) / 1_000_000.0
                     onSuccess(elapsedMs)
                 } catch (e: Exception) {
                     onError("DNS resolution failed: ${e.message}")
@@ -347,7 +345,7 @@ class Connector {
 
                 override fun onResponse(call: Call, response: Response) {
                     val endTime = System.nanoTime()
-                    val elapsedMs = (endTime - startTime) / 1_000_000.0 // milliseconds
+                    val elapsedMs = (endTime - startTime) / 1_000_000.0
                     response.close()
                     onSuccess(elapsedMs)
                 }
@@ -361,15 +359,12 @@ class Connector {
         ) {
             val client = OkHttpClient()
 
-            // Generate a 1MB random byte array
             val sizeBytes = 1 * 1024 * 1024
             val byteArray = ByteArray(sizeBytes)
             Random.Default.nextBytes(byteArray)
 
-            // Create a request body for the file
             val fileBody = byteArray.toRequestBody("application/octet-stream".toMediaType())
 
-            // Multipart form data
             val requestBody = MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("file", "test.bin", fileBody)
@@ -434,10 +429,10 @@ class Connector {
 
                     val elapsedSeconds = (endTime - startTime) / 1_000_000_000.0
                     val bits = bytes.size * 8.0
-                    val throughputMbps = bits / elapsedSeconds / 1_000_000  // megabits per second
+                    val throughputMbps = bits / elapsedSeconds / 1_000_000
 
-//                    Log.d("LOGIN_DEBUG", "seconds: $elapsedSeconds")
-//                    Log.d("LOGIN_DEBUG", "size: $bits")
+//                    Log.d("DEBUG", "seconds: $elapsedSeconds")
+//                    Log.d("DEBUG", "size: $bits")
 
                     onSuccess(throughputMbps)
                 }

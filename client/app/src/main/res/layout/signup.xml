@@ -30,7 +30,8 @@
         app:layout_constraintWidth_percent="0.7"
         app:layout_constraintHeight_percent="0.05"
         android:layout_marginTop="16dp"
-        android:background="@drawable/edittext_background"        android:hint="Phone Number"
+        android:background="@drawable/edittext_background"
+        android:hint="Phone Number"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
 

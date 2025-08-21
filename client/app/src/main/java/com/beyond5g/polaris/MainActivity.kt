@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         val isLoggedIn = sharedPref.getBoolean("is_logged_in", false)
         val loginTime = sharedPref.getLong("login_time", 0L)
 
-        val sessionDurationLimit = 120 * 60 * 1000 // 30 minutes in milliseconds
+        val sessionDurationLimit = 120 * 60 * 1000
 
         val currentTime = System.currentTimeMillis()
 
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         val intent = if (isSessionValid) {
             Intent(this, HomeActivity::class.java)
         } else {
-            sharedPref.edit().clear().apply() // session expired, clear
+            sharedPref.edit().clear().apply()
             Intent(this, LoginActivity::class.java)
         }
 

@@ -135,9 +135,9 @@ class CellDetector(private val context: Context) {
 
     fun getGsmFrequencyFromARFCN(arfcn: Int): Double {
         return when (arfcn) {
-            in 0..124 -> 935.0 + 0.2 * (arfcn - 1)  // GSM 900
-            in 975..1023 -> 925.2 + 0.2 * (arfcn - 975)  // GSM 900 extended
-            in 512..885 -> 1930.0 + 0.2 * (arfcn - 512)  // PCS 1900
+            in 0..124 -> 935.0 + 0.2 * (arfcn - 1)
+            in 975..1023 -> 925.2 + 0.2 * (arfcn - 975)
+            in 512..885 -> 1930.0 + 0.2 * (arfcn - 512)
             else -> -1.0
         }
     }
@@ -153,23 +153,24 @@ class CellDetector(private val context: Context) {
 
     fun getWcdmaFrequencyFromUARFCN(uarfcn: Int): Double {
         return when {
-            uarfcn in 10562..10838 -> 2112.4 + 0.2 * (uarfcn - 10562) // Band 1 (2100 MHz)
-            uarfcn in 9662..9938 -> 1932.4 + 0.2 * (uarfcn - 9662)    // Band 2 (1900 MHz)
-            uarfcn in 1162..1513 -> 1807.4 + 0.2 * (uarfcn - 1162)    // Band 3 (1800 MHz)
-            uarfcn in 1537..1738 -> 2112.4 + 0.2 * (uarfcn - 1537)    // Band 4 (1700/2100 MHz)
-            uarfcn in 4357..4458 -> 873.4 + 0.2 * (uarfcn - 4357)     // Band 5 (850 MHz)
-            uarfcn in 2237..2563 -> 1852.4 + 0.2 * (uarfcn - 2237)   // Band 6 (800 MHz)
-            uarfcn in 2012..2338 -> 1747.4 + 0.2 * (uarfcn - 2012)    // Band 9 (1700 MHz)
-            uarfcn in 2937..3088 -> 1842.4 + 0.2 * (uarfcn - 2937)    // Band 10 (1700 MHz)
-            uarfcn in 3712..3787 -> 704.4 + 0.2 * (uarfcn - 3712)     // Band 11 (1500 MHz)
-            uarfcn in 3842..3903 -> 729.4 + 0.2 * (uarfcn - 3842)     // Band 12 (700 MHz)
-            uarfcn in 4017..4043 -> 746.4 + 0.2 * (uarfcn - 4017)     // Band 13 (700 MHz)
-            uarfcn in 4117..4143 -> 758.4 + 0.2 * (uarfcn - 4117)     // Band 14 (700 MHz)
-            uarfcn in 4387..4413 -> 882.4 + 0.2 * (uarfcn - 4387)     // Band 8 (900 MHz)
-            uarfcn in 712..763 -> 1712.4 + 0.2 * (uarfcn - 712)       // Band 19 (800 MHz)
+            uarfcn in 10562..10838 -> 2112.4 + 0.2 * (uarfcn - 10562)
+            uarfcn in 9662..9938 -> 1932.4 + 0.2 * (uarfcn - 9662)
+            uarfcn in 1162..1513 -> 1807.4 + 0.2 * (uarfcn - 1162)
+            uarfcn in 1537..1738 -> 2112.4 + 0.2 * (uarfcn - 1537)
+            uarfcn in 4357..4458 -> 873.4 + 0.2 * (uarfcn - 4357)
+            uarfcn in 2237..2563 -> 1852.4 + 0.2 * (uarfcn - 2237)
+            uarfcn in 2012..2338 -> 1747.4 + 0.2 * (uarfcn - 2012)
+            uarfcn in 2937..3088 -> 1842.4 + 0.2 * (uarfcn - 2937)
+            uarfcn in 3712..3787 -> 704.4 + 0.2 * (uarfcn - 3712)
+            uarfcn in 3842..3903 -> 729.4 + 0.2 * (uarfcn - 3842)
+            uarfcn in 4017..4043 -> 746.4 + 0.2 * (uarfcn - 4017)
+            uarfcn in 4117..4143 -> 758.4 + 0.2 * (uarfcn - 4117)
+            uarfcn in 4387..4413 -> 882.4 + 0.2 * (uarfcn - 4387)
+            uarfcn in 712..763 -> 1712.4 + 0.2 * (uarfcn - 712)
             else -> -1.0
         }
     }
+
 
     fun getWcdmaBandFromUarfcn(uarfcn: Int): String {
         return when {

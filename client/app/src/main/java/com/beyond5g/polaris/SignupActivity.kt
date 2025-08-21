@@ -29,7 +29,7 @@ class SignupActivity : ComponentActivity() {
                         val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
                         sharedPref.edit()
                             .putString("pending_phone_number", phoneNumber)
-                            .putBoolean("is_logged_in", true) // optional, only if you want to allow navigation
+                            .putBoolean("is_logged_in", true)
                             .putBoolean("is_otp_verified", false)
                             .putLong("login_time", System.currentTimeMillis())
                             .apply()

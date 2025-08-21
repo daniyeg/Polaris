@@ -41,7 +41,6 @@ class DataUploadService : Service() {
         super.onCreate()
         createNotificationChannel()
 
-        // Use a background thread looper, not main
         handler = Handler(Looper.getMainLooper())
         runnable = object : Runnable {
             override fun run() {
@@ -78,12 +77,10 @@ class DataUploadService : Service() {
         val notification = createNotification()
         startForeground(NOTIFICATION_ID, notification)
 
-        // 🔥 FIX #1: remove duplicate call to sendDataToServer()
-        // Only run via handler loop
-        handler.removeCallbacks(runnable) // ensure only one loop
+
+        handler.removeCallbacks(runnable)
         handler.post(runnable)
 
-        // 🔥 FIX #2: Keep service alive if app is swiped away
         return START_STICKY
     }
 
@@ -148,7 +145,6 @@ class DataUploadService : Service() {
     private fun processLocationAndCellData(phoneNumber: String, cellDetector: CellDetector) {
         val locationDetector = LocationDetector(this)
 
-        // Add permission check here instead of on the lambda
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Log.e("DEBUG", "Location permission not granted")
             return

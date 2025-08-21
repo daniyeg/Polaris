@@ -30,7 +30,6 @@ class OtpActivity : ComponentActivity() {
                     if (success) {
                         Toast.makeText(this, "OTP sent", Toast.LENGTH_SHORT).show()
                         Log.d("OTP_RESPONSE", "Success: $response")
-                        // Stay on this screen for user to enter OTP
                     } else {
                         Toast.makeText(this, "Failed to send OTP", Toast.LENGTH_SHORT).show()
                         Log.e("OTP_RESPONSE", "Error: $response")
@@ -47,7 +46,6 @@ class OtpActivity : ComponentActivity() {
                     if (success) {
                         sharedPref.edit().putBoolean("is_otp_verified", true).apply()
                         Toast.makeText(this, "OTP verified!", Toast.LENGTH_SHORT).show()
-                        // After OTP verification, go to HomeActivity (logged in)
                         startActivity(Intent(this, HomeActivity::class.java))
                         finish()
                     } else {

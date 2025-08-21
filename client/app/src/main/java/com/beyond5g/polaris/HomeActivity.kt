@@ -100,8 +100,6 @@ class HomeActivity : ComponentActivity() {
         val allGranted = permissions.all { it.value }
         if (allGranted) {
             startServiceWithCheckboxes()
-        } else {
-            // some permissions denied
         }
     }
 

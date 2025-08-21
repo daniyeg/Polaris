@@ -107,7 +107,6 @@ class LocationDetector(private val context: Context) {
                     activity,
                     Manifest.permission.ACCESS_FINE_LOCATION
                 ) -> {
-                    // Show explanation dialog if needed
                     onDenied()
                     ActivityCompat.requestPermissions(
                         activity,
