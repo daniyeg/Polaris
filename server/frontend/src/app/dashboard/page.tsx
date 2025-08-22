@@ -22,13 +22,6 @@ export default function Dashboard() {
   const [showTimeDropdown, setShowTimeDropdown] = useState<boolean>(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/');
-    }
-  }, [router]);
-
   const handleLogout = async () => {
     const token = localStorage.getItem('token');
 
@@ -54,12 +47,18 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      setIsLoading(true);
-      setData([]);
-      setError(null);
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/');
+      return;
+    }
 
+    setIsLoading(true);
+    setData([]);
+    setTestData([]);
+    setError(null);
+
+    const fetchData = async (token: string): Promise<void> => {
       try {
         let url = 'https://polaris-server-30ha.onrender.com/api/get_cell_infos/';
         if (timeRange !== 'all') {
@@ -89,52 +88,46 @@ export default function Dashboard() {
       } catch (error) {
         console.error('خطای دریافت داده:', error);
         setError('دریافت داده‌ها با مشکل مواجه شد. لطفا دوباره تلاش کنید.');
-      } finally {
-        setIsLoading(false);
       }
     };
 
-    fetchData();
-  }, [timeRange, router]);
-
-useEffect(() => {
-  const fetchTestData = async () => {
-    const token = localStorage.getItem('token');
-    setIsLoading(true);
-
-    try {
-      let url = 'https://polaris-server-30ha.onrender.com/api/get_tests/';
-      if (timeRange !== 'all') {
-        url += `?range=${timeRange}`;
-      }
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Token ${token}`
+    const fetchTestData = async (token: string): Promise<void> => {
+      try {
+        let url = 'https://polaris-server-30ha.onrender.com/api/get_tests/';
+        if (timeRange !== 'all') {
+          url += `?range=${timeRange}`;
         }
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Token ${token}`
+          }
+        });
+
+        if (response.status === 403) {
+          localStorage.removeItem('token');
+          router.push('/login');
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error('خطا در دریافت داده‌های تست');
+        }
+
+        const testData = await response.json();
+        setTestData(testData);
+      } catch (error) {
+        console.error('خطای دریافت داده‌های تست:', error);
+        setError('دریافت داده‌های تست با مشکل مواجه شد');
+      }
+    };
+
+    Promise.allSettled([fetchData(token), fetchTestData(token)])
+      .then(() => {
+        setIsLoading(false);
       });
-
-      if (response.status === 403) {
-        localStorage.removeItem('token');
-        router.push('/login');
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch test data');
-      }
-
-      const testData = await response.json();
-      setTestData(testData);
-    } catch (error) {
-      console.error('Error fetching test data:', error);
-      setError('Failed to fetch test data');
-    }
-  };
-
-  fetchTestData();
-}, [timeRange, router]);
+  }, [timeRange, router]);
 
   const timeRangeOptions = [
     { value: '1h', label: '۱ ساعت اخیر' },
