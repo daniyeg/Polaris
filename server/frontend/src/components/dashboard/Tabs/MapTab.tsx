@@ -8,7 +8,7 @@ const MapWithNoSSR = dynamic(() => import('../MapComponent'), {
   loading: () => <div className="h-120 flex items-center justify-center">Loading map...</div>
 });
 
-export default function MapTab({ data }: DashboardTabProps) {
+export default function MapTab({ data, testData }: DashboardTabProps) {
   return (
     <div className="h-130">
       <MapWithNoSSR data={data} />

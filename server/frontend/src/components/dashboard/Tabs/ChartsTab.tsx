@@ -1,7 +1,7 @@
 'use client'
 
 import { PieChart, Pie, Cell, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { UEData } from '@/components/dashboard/types';
+import { UEData, DashboardTabProps } from '@/components/dashboard/types';
 import { useState, useEffect } from 'react';
 import { FaChartPie, FaChartLine, FaChartBar, FaChartArea } from 'react-icons/fa';
 import { processPieChartData, processLineChartData, processBarChartData } from '@/utils/chartData';
@@ -112,7 +112,7 @@ const CustomXAxisTick = (props: any) => {
   );
 };
 
-export default function ChartsTab({ data }: { data: UEData[] }) {
+export default function ChartsTab({ data, testData }: DashboardTabProps) {
   const [activeChartType, setActiveChartType] = useState<'pie' | 'line' | 'bar' | 'area'>('pie');
   const [chartData, setChartData] = useState<any>({
     techAdoption: [],
