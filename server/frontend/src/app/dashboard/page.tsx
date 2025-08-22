@@ -238,9 +238,9 @@ useEffect(() => {
             </div>
           ) : (
             <div className="h-full p-1">
-              {activeTab === 'map' && <MapTab data={data} testData={testData}  />}
-              {activeTab === 'table' && <TableTab data={data} testData={testData} />}
-              {activeTab === 'charts' && <ChartsTab data={data} testData={testData}  />}
+              {activeTab === 'map' && <MapTab data={data || []} testData={testData || []}  />}
+              {activeTab === 'table' && <TableTab data={data || []} testData={testData || []} />}
+              {activeTab === 'charts' && <ChartsTab data={data || []} testData={testData || []}  />}
             </div>
           )}
         </div>

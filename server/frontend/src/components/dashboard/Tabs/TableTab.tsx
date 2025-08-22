@@ -26,7 +26,7 @@ export default function TableTab({ data, testData }: DashboardTabProps) {
 
   const filteredTestData = useMemo(() => {
     if (activeSubTab === 'cell_info') return [];
-    return testData.filter(test => test.type_ === activeSubTab);
+    return Array.isArray(testData) ? testData.filter(test => test.type_ === activeSubTab) : [];
   }, [testData, activeSubTab]);
 
   const sortedCellInfo = useMemo(() => {
@@ -116,6 +116,187 @@ export default function TableTab({ data, testData }: DashboardTabProps) {
       setItemsPerPage(Number(value));
     }
     setCurrentPage(1);
+  };
+
+  const convertToCSV = (items: TableItem[]) => {
+    if (items.length === 0) return '';
+
+    let headers: string[] = [];
+    let rows: string[] = [];
+
+    if (activeSubTab === 'cell_info') {
+      headers = [
+        'id', 'phone_number', 'timestamp', 'lat', 'lng', 'gen', 'tech', 'plmn',
+        'cid', 'lac', 'rac', 'tac', 'freq_band', 'afrn', 'freq', 'rsrp', 'rsrq', 'ecno', 'rxlev'
+      ];
+
+      rows = items.map(item => {
+        if (!isUEData(item)) return '';
+        return headers.map(header => {
+          const value = item[header as keyof UEData];
+          if (value === null || value === undefined) return '';
+          if (header === 'timestamp' && value) {
+            return new Date(value as string).toISOString();
+          }
+          return `"${String(value).replace(/"/g, '""')}"`;
+        }).join(',');
+      });
+    } else {
+      const columns = getTestDataColumns();
+      headers = columns.map(col => col.key);
+
+      rows = items.map(item => {
+        if (!isTestData(item)) return '';
+        return headers.map(header => {
+          let value: any = '';
+          if (header === 'location') {
+            const location = cellInfoMap[item.cell_info];
+            value = location ? `${location.lat},${location.lng}` : '';
+          } else {
+            value = item[header as keyof TestData] || item.detail[header];
+          }
+
+          if (value === null || value === undefined) return '';
+          if (header === 'timestamp' && value) {
+            return new Date(value as string).toISOString();
+          }
+          return `"${String(value).replace(/"/g, '""')}"`;
+        }).join(',');
+      });
+    }
+
+    return [headers.join(','), ...rows].join('\n');
+  };
+
+  const convertToKML = (items: TableItem[]) => {
+    const placemarks = items.map(item => {
+      let lat: number | null = null;
+      let lng: number | null = null;
+      let name = '';
+      let description = '';
+
+      if (isUEData(item)) {
+        lat = item.lat;
+        lng = item.lng;
+        name = `Cell Info ${item.id}`;
+        description = `
+          ID: ${item.id}<br/>
+          Phone: ${item.phone_number || 'N/A'}<br/>
+          Timestamp: ${item.timestamp ? new Date(item.timestamp).toLocaleString('fa-IR') : 'N/A'}<br/>
+          Technology: ${item.tech || 'N/A'}<br/>
+          RSRP: ${item.rsrp || 'N/A'}<br/>
+          RSRQ: ${item.rsrq || 'N/A'}
+        `.trim();
+      } else if (isTestData(item)) {
+        const location = cellInfoMap[item.cell_info];
+        if (location) {
+          lat = location.lat;
+          lng = location.lng;
+        }
+        name = `${item.type_} Test ${item.id}`;
+        description = `
+          ID: ${item.id}<br/>
+          Phone: ${item.phone_number || 'N/A'}<br/>
+          Timestamp: ${new Date(item.timestamp).toLocaleString('fa-IR')}<br/>
+          Type: ${item.type_}<br/>
+          Details: ${JSON.stringify(item.detail, null, 2)}
+        `.trim();
+      }
+
+      if (lat === null || lng === null) return '';
+
+      return `
+        <Placemark>
+          <name>${name}</name>
+          <description><![CDATA[${description}]]></description>
+          <Point>
+            <coordinates>${lng},${lat}</coordinates>
+          </Point>
+        </Placemark>
+      `.trim();
+    }).filter(pm => pm !== '').join('\n');
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    ${placemarks}
+  </Document>
+</kml>`;
+  };
+
+  const handleDownload = (format: 'csv' | 'kml') => {
+    const items = activeSubTab === 'cell_info' ? sortedCellInfo : sortedTestData;
+    let content = '';
+    let mimeType = '';
+    let extension = '';
+
+    if (format === 'csv') {
+      content = convertToCSV(items);
+      mimeType = 'text/csv;charset=utf-8;';
+      extension = 'csv';
+    } else if (format === 'kml') {
+      content = convertToKML(items);
+      mimeType = 'application/vnd.google-earth.kml+xml';
+      extension = 'kml';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `${activeSubTab}_data.${extension}`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const getTestDataColumns = () => {
+    switch (activeSubTab) {
+      case 'http_download':
+      case 'http_upload':
+        return [
+          { key: 'id', label: 'ID' },
+          { key: 'phone_number', label: 'شماره تلفن' },
+          { key: 'timestamp', label: 'زمان' },
+          { key: 'location', label: 'موقعیت' },
+          { key: 'throughput', label: 'سرعت (مگابیت بر ثانیه)' },
+        ];
+      case 'dns':
+        return [
+          { key: 'id', label: 'ID' },
+          { key: 'phone_number', label: 'شماره تلفن' },
+          { key: 'timestamp', label: 'زمان' },
+          { key: 'location', label: 'موقعیت' },
+          { key: 'time', label: 'زمان پاسخ (میلی ثانیه)' },
+        ];
+      case 'web':
+        return [
+          { key: 'id', label: 'ID' },
+          { key: 'phone_number', label: 'شماره تلفن' },
+          { key: 'timestamp', label: 'زمان' },
+          { key: 'location', label: 'موقعیت' },
+          { key: 'response_time', label: 'زمان پاسخ (میلی ثانیه)' },
+        ];
+      case 'sms':
+        return [
+          { key: 'id', label: 'ID' },
+          { key: 'phone_number', label: 'شماره تلفن' },
+          { key: 'timestamp', label: 'زمان' },
+          { key: 'location', label: 'موقعیت' },
+          { key: 'send_time', label: 'زمان ارسال (میلی ثانیه)' },
+        ];
+      case 'ping':
+        return [
+          { key: 'id', label: 'ID' },
+          { key: 'phone_number', label: 'شماره تلفن' },
+          { key: 'timestamp', label: 'زمان' },
+          { key: 'location', label: 'موقعیت' },
+          { key: 'latency', label: 'تأخیر (میلی ثانیه)' },
+        ];
+      default:
+        return [];
+    }
   };
 
   const renderCellInfoTable = () => (
@@ -208,55 +389,7 @@ export default function TableTab({ data, testData }: DashboardTabProps) {
   );
 
   const renderTestDataTable = () => {
-    const getColumns = () => {
-      switch (activeSubTab) {
-        case 'http_download':
-        case 'http_upload':
-          return [
-            { key: 'id', label: 'ID' },
-            { key: 'phone_number', label: 'شماره تلفن' },
-            { key: 'timestamp', label: 'زمان' },
-            { key: 'location', label: 'موقعیت' },
-            { key: 'throughput', label: 'سرعت (مگابیت بر ثانیه)' },
-          ];
-        case 'dns':
-          return [
-            { key: 'id', label: 'ID' },
-            { key: 'phone_number', label: 'شماره تلفن' },
-            { key: 'timestamp', label: 'زمان' },
-            { key: 'location', label: 'موقعیت' },
-            { key: 'time', label: 'زمان پاسخ (میلی ثانیه)' },
-          ];
-        case 'web':
-          return [
-            { key: 'id', label: 'ID' },
-            { key: 'phone_number', label: 'شماره تلفن' },
-            { key: 'timestamp', label: 'زمان' },
-            { key: 'location', label: 'موقعیت' },
-            { key: 'response_time', label: 'زمان پاسخ (میلی ثانیه)' },
-          ];
-        case 'sms':
-          return [
-            { key: 'id', label: 'ID' },
-            { key: 'phone_number', label: 'شماره تلفن' },
-            { key: 'timestamp', label: 'زمان' },
-            { key: 'location', label: 'موقعیت' },
-            { key: 'send_time', label: 'زمان ارسال (میلی ثانیه)' },
-          ];
-        case 'ping':
-          return [
-            { key: 'id', label: 'ID' },
-            { key: 'phone_number', label: 'شماره تلفن' },
-            { key: 'timestamp', label: 'زمان' },
-            { key: 'location', label: 'موقعیت' },
-            { key: 'latency', label: 'تأخیر (میلی ثانیه)' },
-          ];
-        default:
-          return [];
-      }
-    };
-
-    const columns = getColumns();
+    const columns = getTestDataColumns();
 
     return (
       <table className="w-full text-sm">
@@ -340,18 +473,34 @@ export default function TableTab({ data, testData }: DashboardTabProps) {
     <div className="h-full flex flex-col bg-ocean-800 rounded-lg shadow-md">
       <div className="flex justify-between items-center p-4">
         <h2 className="text-lg font-semibold">جدول داده‌ها</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-300">تعداد در صفحه:</span>
-          <select
-            value={itemsPerPage === 'all' ? 'all' : itemsPerPage}
-            onChange={(e) => handleItemsPerPageChange(e.target.value)}
-            className="bg-ocean-700 text-white rounded px-2 py-1"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={100}>100</option>
-            <option value="all">همه</option>
-          </select>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleDownload('csv')}
+              className="bg-teal-600 hover:bg-teal-700 text-white px-3 py-1 rounded text-sm"
+            >
+              دانلود CSV
+            </button>
+            <button
+              onClick={() => handleDownload('kml')}
+              className="bg-ocean-600 hover:bg-ocean-700 text-white px-3 py-1 rounded text-sm"
+            >
+              دانلود KML
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-300">تعداد در صفحه:</span>
+            <select
+              value={itemsPerPage === 'all' ? 'all' : itemsPerPage}
+              onChange={(e) => handleItemsPerPageChange(e.target.value)}
+              className="bg-ocean-700 text-white rounded px-2 py-1"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={100}>100</option>
+              <option value="all">همه</option>
+            </select>
+          </div>
         </div>
       </div>
 
