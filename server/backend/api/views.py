@@ -20,6 +20,9 @@ from django.shortcuts import get_object_or_404
 from datetime import timedelta
 from django.utils import timezone
 from django.http import StreamingHttpResponse
+import logging
+
+logger = logging.getLogger(__name__)
 
 TEST_SERIALIZER_MAP = {
     'http_download': HTTPDownloadTestSerializer,
@@ -258,38 +261,64 @@ def get_cell_info(request):
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_tests(request):
-    time_filter = request.query_params.get('range')
-    query = Test.objects.all()
 
-    now = timezone.now()
+    token_key = request.headers.get("Authorization")
+    if not token_key or not token_key.startswith("Token "):
+        return Response(
+            {"detail": "Authentication credentials were not provided."},
+            status=403
+        )
+    # Get the range parameter (case-insensitive)
+    time_filter = request.query_params.get('range') or request.query_params.get('Range')
+    
+    # Log the request for debugging
+    logger.info(f"GET tests request received with range parameter: {time_filter}")
+    
+    # Start with all objects
+    query = Test.objects.all()
+    
+    # Apply time filter if provided
     if time_filter:
-        time_filter = time_filter.lower()
-        if time_filter.endswith('h'):  
-            try:
+        time_filter = time_filter.lower().strip()
+        now = timezone.now()
+        
+        try:
+            if time_filter.endswith('h'):  
                 hours = float(time_filter[:-1])
                 time_threshold = now - timedelta(hours=hours)
                 query = query.filter(timestamp__gte=time_threshold)
-            except ValueError:
-                return Response({"error": "Invalid hour format. Use '1h', '3h', etc."}, status=400)
-        elif time_filter.endswith('d'):  
-            try:
+                logger.info(f"Filtering tests from last {hours} hours (since {time_threshold})")
+                
+            elif time_filter.endswith('d'):  
                 days = int(time_filter[:-1])
                 time_threshold = now - timedelta(days=days)
                 query = query.filter(timestamp__gte=time_threshold)
-            except ValueError:
-                return Response({"error": "Invalid day format. Use '1d' for 1 day."}, status=400)
-        elif time_filter.endswith('w'): 
-            try:
+                logger.info(f"Filtering tests from last {days} days (since {time_threshold})")
+                
+            elif time_filter.endswith('w'): 
                 weeks = int(time_filter[:-1])
                 time_threshold = now - timedelta(weeks=weeks)
                 query = query.filter(timestamp__gte=time_threshold)
-            except ValueError:
-                return Response({"error": "Invalid week format. Use '1w' for 1 week."}, status=400)
-        else:
-            return Response({"error": "Invalid range. Use formats like '1h', '1d', '1w'."}, status=400)
-
+                logger.info(f"Filtering tests from last {weeks} weeks (since {time_threshold})")
+                
+            else:
+                return Response({"error": "Invalid range format. Use formats like '1h', '1d', '1w'."}, status=400)
+                
+        except ValueError as e:
+            logger.error(f"Error parsing time filter '{time_filter}': {str(e)}")
+            return Response({"error": f"Invalid range format: {str(e)}"}, status=400)
+    
+    # Log the number of results for debugging
+    count = query.count()
+    logger.info(f"Query returned {count} results")
+    
+    # Serialize and return the data
     serializer = UnifiedTestSerializer(query, many=True)
-    return Response(serializer.data)
+    return Response({
+        "count": count,
+        "time_filter": time_filter,
+        "results": serializer.data
+    })
 
 
 @swagger_auto_schema(method='get')
