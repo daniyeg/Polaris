@@ -20,7 +20,17 @@ export type UEData = {
   rxlev: number;
 };
 
+export type TestData = {
+  id: number;
+  phone_number: string;
+  timestamp: string;
+  cell_info: number;
+  type_: string;
+  detail: any;
+};
+
 export type DashboardTabProps = {
   data: UEData[];
+  testData: TestData[];
   isLoading?: boolean;
 };

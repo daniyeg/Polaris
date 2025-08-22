@@ -3,9 +3,9 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { FaChartPie } from 'react-icons/fa';
-import { FaMapMarkedAlt, FaTable, FaFilter, FaSignOutAlt, FaClock } from 'react-icons/fa';
+import { FaMapMarkedAlt, FaTable, FaSignOutAlt, FaClock } from 'react-icons/fa';
 import { generateMockData } from '@/components/dashboard/GenerateMockData';
-import { UEData } from '@/components/dashboard/types';
+import { UEData, TestData } from '@/components/dashboard/types';
 import { useRouter } from 'next/navigation';
 
 const MapTab = dynamic(() => import('@/components/dashboard/Tabs/MapTab'));
@@ -17,6 +17,7 @@ export default function Dashboard() {
   const [timeRange, setTimeRange] = useState<string>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [data, setData] = useState<UEData[]>([]);
+  const [testData, setTestData] = useState<TestData[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showTimeDropdown, setShowTimeDropdown] = useState<boolean>(false);
   const router = useRouter();
@@ -95,6 +96,45 @@ export default function Dashboard() {
 
     fetchData();
   }, [timeRange, router]);
+
+useEffect(() => {
+  const fetchTestData = async () => {
+    const token = localStorage.getItem('token');
+    setIsLoading(true);
+
+    try {
+      let url = 'https://polaris-server-30ha.onrender.com/api/get_tests/';
+      if (timeRange !== 'all') {
+        url += `?range=${timeRange}`;
+      }
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Token ${token}`
+        }
+      });
+
+      if (response.status === 403) {
+        localStorage.removeItem('token');
+        router.push('/login');
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch test data');
+      }
+
+      const testData = await response.json();
+      setTestData(testData);
+    } catch (error) {
+      console.error('Error fetching test data:', error);
+      setError('Failed to fetch test data');
+    }
+  };
+
+  fetchTestData();
+}, [timeRange, router]);
 
   const timeRangeOptions = [
     { value: '1h', label: '۱ ساعت اخیر' },
@@ -198,9 +238,9 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="h-full p-1">
-              {activeTab === 'map' && <MapTab data={data} />}
-              {activeTab === 'table' && <TableTab data={data} />}
-              {activeTab === 'charts' && <ChartsTab data={data} />}
+              {activeTab === 'map' && <MapTab data={data} testData={testData}  />}
+              {activeTab === 'table' && <TableTab data={data} testData={testData} />}
+              {activeTab === 'charts' && <ChartsTab data={data} testData={testData}  />}
             </div>
           )}
         </div>
