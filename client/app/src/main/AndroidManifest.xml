@@ -50,7 +50,7 @@
         <activity android:name=".OtpActivity" />
 
         <service
-            android:name=".DataUploadService"
+            android:name=".ForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 

@@ -8,7 +8,6 @@ import android.widget.Button
 import android.widget.CheckBox
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import android.util.Log
@@ -50,9 +49,9 @@ class HomeActivity : ComponentActivity() {
                     checkBoxStates[checkBoxId] = isChecked
 
                     if (isStarted){
-                        stopServiceWithCheckboxes()
+                        stopService()
 
-                        startServiceWithCheckboxes()
+                        startService()
                     }
 
                 }
@@ -67,9 +66,9 @@ class HomeActivity : ComponentActivity() {
             if (checkAndRequestPermissions()) {
 
                 if(isStarted){
-                    startServiceWithCheckboxes()
+                    startService()
                 }else{
-                    stopServiceWithCheckboxes()
+                    stopService()
                 }
             }
         }
@@ -99,26 +98,13 @@ class HomeActivity : ComponentActivity() {
     ) { permissions ->
         val allGranted = permissions.all { it.value }
         if (allGranted) {
-            startServiceWithCheckboxes()
+            startService()
         }
     }
 
-//    private fun requestIgnoreBatteryOptimizations() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            val intent = Intent()
-//            val packageName = packageName
-//            val powerManager = getSystemService(POWER_SERVICE) as PowerManager
-//
-//            if (!powerManager.isIgnoringBatteryOptimizations(packageName)) {
-//                intent.action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
-//                intent.data = Uri.parse("package:$packageName")
-//                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//                startActivity(intent)
-//            }
-//        }
-//    }
 
-    private fun startServiceWithCheckboxes() {
+
+    private fun startService() {
         val checkbox_sms = findViewById<CheckBox>(R.id.checkbox_sms).isChecked
         val checkbox_dns = findViewById<CheckBox>(R.id.checkbox_dns).isChecked
         val checkbox_ping = findViewById<CheckBox>(R.id.checkbox_ping).isChecked
@@ -126,7 +112,7 @@ class HomeActivity : ComponentActivity() {
         val checkbox_upload = findViewById<CheckBox>(R.id.checkbox_upload).isChecked
         val checkbox_web = findViewById<CheckBox>(R.id.checkbox_web).isChecked
 
-        val serviceIntent = Intent(this, DataUploadService::class.java).apply {
+        val serviceIntent = Intent(this, ForegroundService::class.java).apply {
             putExtra("checkbox_sms", checkbox_sms)
             putExtra("checkbox_dns", checkbox_dns)
             putExtra("checkbox_ping", checkbox_ping)
@@ -137,8 +123,8 @@ class HomeActivity : ComponentActivity() {
         startService(serviceIntent)
     }
 
-    private fun stopServiceWithCheckboxes() {
-        val serviceIntent = Intent(this, DataUploadService::class.java)
+    private fun stopService() {
+        val serviceIntent = Intent(this, ForegroundService::class.java)
 
         stopService(serviceIntent)
     }

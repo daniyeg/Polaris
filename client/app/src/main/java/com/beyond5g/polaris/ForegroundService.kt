@@ -4,21 +4,39 @@ import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.telephony.SmsManager
 import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.Response
+import java.io.IOException
+import java.net.InetAddress
 import java.time.LocalDateTime
+import kotlin.concurrent.thread
+import kotlin.random.Random
 
 
-class DataUploadService : Service() {
+class ForegroundService : Service() {
 
     companion object {
         private const val CHANNEL_ID = "upload_channel"
@@ -250,7 +268,7 @@ class DataUploadService : Service() {
     }
 
     private fun performDnsTest(phoneNumber: String, timestamp: String, cellInfoId: Int) {
-        Connector.dnsResolution(
+        dnsResolution(
             onSuccess = { ms ->
                 Log.d("DNS", "DNS resolution time: %.2f ms".format(ms))
                 Connector.sendTest(
@@ -275,7 +293,7 @@ class DataUploadService : Service() {
     }
 
     private fun performPingTest(phoneNumber: String, timestamp: String, cellInfoId: Int) {
-        Connector.pingResponse(
+        pingResponse(
             onSuccess = { ms ->
                 Log.d("PING", "Ping Time: %.2f ms".format(ms))
                 Connector.sendTest(
@@ -300,7 +318,7 @@ class DataUploadService : Service() {
     }
 
     private fun performDownloadTest(phoneNumber: String, timestamp: String, cellInfoId: Int) {
-        Connector.httpDownload(
+        httpDownload(
             onSuccess = { mbps ->
                 Log.d("API", "Download Throughput: %.2f Mbps".format(mbps))
                 Connector.sendTest(
@@ -325,7 +343,7 @@ class DataUploadService : Service() {
     }
 
     private fun performUploadTest(phoneNumber: String, timestamp: String, cellInfoId: Int) {
-        Connector.httpUpload(
+        httpUpload(
             onSuccess = { mbps ->
                 Log.d("API", "Upload Throughput: %.2f Mbps".format(mbps))
                 Connector.sendTest(
@@ -350,7 +368,7 @@ class DataUploadService : Service() {
     }
 
     private fun performWebTest(phoneNumber: String, timestamp: String, cellInfoId: Int) {
-        Connector.webAnswer(
+        webAnswer(
             onSuccess = { ms ->
                 Log.d("API", "Web Answer: %.2f ms".format(ms))
                 Connector.sendTest(
@@ -372,5 +390,205 @@ class DataUploadService : Service() {
                 Log.e("API", "Web test failed: $error")
             }
         )
+    }
+
+    fun sendSmsWithDeliveryTest(
+        phoneNumber: String,
+        message: String,
+        context: Context
+    ) {
+        val smsManager = SmsManager.getDefault()
+
+        val sentIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent("SMS_SENT"),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val deliveredIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent("SMS_DELIVERED"),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val startTime = System.currentTimeMillis()
+
+        ContextCompat.registerReceiver(context, object : BroadcastReceiver() {
+            override fun onReceive(p0: Context?, p1: Intent?) {
+                val endTime = System.currentTimeMillis()
+                val deliveryTime = endTime - startTime
+                println(" SMS Delivery time: ${deliveryTime} ms")
+                context.unregisterReceiver(this)
+            }
+        }, IntentFilter("SMS_DELIVERED"), ContextCompat.RECEIVER_NOT_EXPORTED)
+
+        smsManager.sendTextMessage(
+            phoneNumber,
+            null,
+            message,
+            sentIntent,
+            deliveredIntent
+        )
+    }
+
+
+    fun pingResponse(
+        host: String = "8.8.8.8",
+        onSuccess: (Double) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        thread {
+            try {
+                val process = Runtime.getRuntime().exec("/system/bin/ping -c 1 $host")
+                val startTime = System.nanoTime()
+                val exitCode = process.waitFor()
+                val endTime = System.nanoTime()
+
+                if (exitCode == 0) {
+                    val elapsedMs = (endTime - startTime) / 1_000_000.0
+                    onSuccess(elapsedMs)
+                } else {
+                    onError("Ping failed with exit code $exitCode")
+                }
+            } catch (e: Exception) {
+                onError("Ping error: ${e.message}")
+            }
+        }
+    }
+
+    fun dnsResolution(
+        hostname: String = "google.com",
+        onSuccess: (Double) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        thread {
+            try {
+                val startTime = System.nanoTime()
+                InetAddress.getByName(hostname)
+                val endTime = System.nanoTime()
+
+                val elapsedMs = (endTime - startTime) / 1_000_000.0
+                onSuccess(elapsedMs)
+            } catch (e: Exception) {
+                onError("DNS resolution failed: ${e.message}")
+            }
+        }
+    }
+
+    fun webAnswer(
+        apiUrl: String = "https://api.github.com",
+        onSuccess: (Double) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val client = OkHttpClient()
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .get()
+            .build()
+
+        val startTime = System.nanoTime()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                onError("Network error: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val endTime = System.nanoTime()
+                val elapsedMs = (endTime - startTime) / 1_000_000.0
+                response.close()
+                onSuccess(elapsedMs)
+            }
+        })
+    }
+
+    fun httpUpload(
+        apiUrl: String = "https://polaris-server-30ha.onrender.com/api/upload_test/",
+        onSuccess: (Double) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val client = OkHttpClient()
+
+        val sizeBytes = 1 * 1024 * 1024
+        val byteArray = ByteArray(sizeBytes)
+        Random.Default.nextBytes(byteArray)
+
+        val fileBody = byteArray.toRequestBody("application/octet-stream".toMediaType())
+
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart("file", "test.bin", fileBody)
+            .build()
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .post(requestBody)
+            .build()
+
+        val startTime = System.nanoTime()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                onError("Network error: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                val endTime = System.nanoTime()
+
+                if (!response.isSuccessful) {
+                    onError("Server error (${response.code})")
+                    return
+                }
+
+                val elapsedSeconds = (endTime - startTime) / 1_000_000_000.0
+                val bits = sizeBytes * 8.0
+                val throughputMbps = bits / elapsedSeconds / 1_000_000
+
+                onSuccess(throughputMbps)
+            }
+        })
+    }
+
+
+    fun httpDownload(
+        apiUrl: String = "https://polaris-server-30ha.onrender.com/api/download_test/",
+        onSuccess: (Double) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(apiUrl)
+            .get()
+            .build()
+
+        val startTime = System.nanoTime()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                onError("Network error: ${e.message}")
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                if (!response.isSuccessful) {
+                    onError("Server error (${response.code})")
+                    return
+                }
+
+                val bytes = response.body?.bytes() ?: ByteArray(0)
+                val endTime = System.nanoTime()
+
+                val elapsedSeconds = (endTime - startTime) / 1_000_000_000.0
+                val bits = bytes.size * 8.0
+                val throughputMbps = bits / elapsedSeconds / 1_000_000
+
+//                    Log.d("DEBUG", "seconds: $elapsedSeconds")
+//                    Log.d("DEBUG", "size: $bits")
+
+                onSuccess(throughputMbps)
+            }
+        })
     }
 }

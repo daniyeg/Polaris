@@ -91,40 +91,4 @@ class LocationDetector(private val context: Context) {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    companion object {
-        fun checkOrRequestPermission(
-            activity: Activity,
-            onGranted: () -> Unit,
-            onDenied: () -> Unit = {}
-        ) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    activity,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED -> onGranted()
-
-                ActivityCompat.shouldShowRequestPermissionRationale(
-                    activity,
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                ) -> {
-                    onDenied()
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        LOCATION_PERMISSION_REQUEST_CODE
-                    )
-                }
-
-                else -> {
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                        LOCATION_PERMISSION_REQUEST_CODE
-                    )
-                }
-            }
-        }
-
-        const val LOCATION_PERMISSION_REQUEST_CODE = 1001
-    }
 }
