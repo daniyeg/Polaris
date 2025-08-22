@@ -226,7 +226,6 @@ def get_users(request):
 
 
 @swagger_auto_schema(method='get')
-@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_cell_info(request):
     token_key = request.headers.get("Authorization")
