@@ -281,7 +281,8 @@ def get_tests(request):
     if time_filter:
         time_filter = time_filter.lower().strip()
         now = timezone.now()
-        
+        logger.info(f"Time threshold: {time_threshold}")
+        logger.info(f"Generated SQL: {str(query.query)}")
         try:
             if time_filter.endswith('h'):  
                 hours = float(time_filter[:-1])
