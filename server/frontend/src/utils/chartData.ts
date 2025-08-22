@@ -7,8 +7,10 @@ const categorizeRSRQ = (rsrq: number) => {
   return 'ضعیف';
 };
 
+const parseTimestamp = (timestamp: string) => new Date(timestamp).getTime();
+
 const calculateLifetimeByCategory = (data: UEData[], categoryKey: keyof UEData) => {
-  const sortedData = [...data].sort((a, b) => a.timestamp - b.timestamp);
+  const sortedData = [...data].sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
 
   const categoryGroups: Record<string, UEData[]> = {};
 
@@ -23,7 +25,7 @@ const calculateLifetimeByCategory = (data: UEData[], categoryKey: keyof UEData) 
   const lifetimeByCategory: Record<string, number> = {};
 
   Object.entries(categoryGroups).forEach(([category, items]) => {
-    items.sort((a, b) => a.timestamp - b.timestamp);
+    items.sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
 
     let totalLifetime = 0;
 
@@ -37,7 +39,7 @@ const calculateLifetimeByCategory = (data: UEData[], categoryKey: keyof UEData) 
       if (currentIndex < sortedData.length - 1) {
         const nextItem = sortedData[currentIndex + 1];
         if (String(nextItem[categoryKey]) !== category) {
-          totalLifetime += nextItem.timestamp - currentItem.timestamp;
+          totalLifetime += parseTimestamp(nextItem.timestamp) - parseTimestamp(currentItem.timestamp);
         }
       }
     }
@@ -115,7 +117,8 @@ export const processLineChartData = (data: UEData[]) => {
   const plmnPerformance: Record<string, { rsrpSum: number; rsrqSum: number; count: number }> = {};
 
   data.forEach(item => {
-    const timeBin = Math.floor(item.timestamp / (5 * 60 * 1000)) * (5 * 60 * 1000);
+    const timestampMs = parseTimestamp(item.timestamp);
+    const timeBin = Math.floor(timestampMs / (5 * 60 * 1000)) * (5 * 60 * 1000);
 
     if (!timeSeries[timeBin]) {
       timeSeries[timeBin] = { rsrpSum: 0, rsrqSum: 0, count: 0 };
