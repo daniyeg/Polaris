@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
 
         var isSessionValid = isLoggedIn && (currentTime - loginTime < sessionDurationLimit)
 
-//        isSessionValid = true
+        isSessionValid = true
 
         val intent = if (isSessionValid) {
             Intent(this, HomeActivity::class.java)

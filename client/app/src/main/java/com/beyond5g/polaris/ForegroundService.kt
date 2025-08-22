@@ -392,7 +392,7 @@ class ForegroundService : Service() {
         )
     }
 
-    fun sendSmsWithDeliveryTest(
+    fun smsDelay(
         phoneNumber: String,
         message: String,
         context: Context
