@@ -171,18 +171,16 @@ def logout_user(request):
 @swagger_auto_schema(method='post', request_body=CellInfoSerializer)
 @api_view(['POST'])
 def add_cell_info(request):
-    
     serializer = CellInfoSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(user=token.user)  
+        serializer.save()
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
+
 
 @swagger_auto_schema(method='post', request_body=AddTestInputSerializer)
 @api_view(['POST'])
 def add_test(request):
-
-
     type_ = request.data.get('type_')
     if not type_ or type_ not in TEST_SERIALIZER_MAP:
         return Response({'error': 'Invalid or missing test type'}, status=400)
@@ -226,6 +224,7 @@ def get_users(request):
 
 
 @swagger_auto_schema(method='get')
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_cell_info(request):
     token_key = request.headers.get("Authorization")
