@@ -116,7 +116,7 @@ export default function Dashboard() {
         }
 
         const testData = await response.json();
-        setTestData(testData);
+        setTestData(testData.results);
       } catch (error) {
         console.error('خطای دریافت داده‌های تست:', error);
         setError('دریافت داده‌های تست با مشکل مواجه شد');
