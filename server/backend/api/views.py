@@ -245,6 +245,7 @@ def get_users(request):
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_cell_info(request):
+    # Authentication check
     token_key = request.headers.get("Authorization")
     if not token_key or not token_key.startswith("Token "):
         return Response(
@@ -252,9 +253,62 @@ def get_cell_info(request):
             status=403
         )
 
-    data = CellInfo.objects.all()
-    serializer = CellInfoSerializer(data, many=True)
-    return Response(serializer.data)
+    # Get the range parameter (case-insensitive)
+    time_filter = request.query_params.get('range') or request.query_params.get('Range')
+    
+    # Log the request for debugging
+    logger.info(f"GET cell_info request received with range parameter: {time_filter}")
+    
+    # Start with all objects
+    query = CellInfo.objects.all()
+    
+    # Apply time filter if provided
+    if time_filter:
+        time_filter = time_filter.lower().strip()
+        now = timezone.now()
+        
+        try:
+            if time_filter.endswith('h'):  
+                hours = float(time_filter[:-1])
+                time_threshold = now - timedelta(hours=hours)
+                query = query.filter(timestamp__gte=time_threshold)
+                logger.info(f"Filtering cell_info from last {hours} hours (since {time_threshold})")
+                logger.info(f"Time threshold: {time_threshold}")
+                logger.info(f"Generated SQL: {str(query.query)}")
+
+            elif time_filter.endswith('d'):  
+                days = int(time_filter[:-1])
+                time_threshold = now - timedelta(days=days)
+                query = query.filter(timestamp__gte=time_threshold)
+                logger.info(f"Filtering cell_info from last {days} days (since {time_threshold})")
+                logger.info(f"Time threshold: {time_threshold}")
+                logger.info(f"Generated SQL: {str(query.query)}")
+                
+            elif time_filter.endswith('w'): 
+                weeks = int(time_filter[:-1])
+                time_threshold = now - timedelta(weeks=weeks)
+                query = query.filter(timestamp__gte=time_threshold)
+                logger.info(f"Filtering cell_info from last {weeks} weeks (since {time_threshold})")
+                logger.info(f"Time threshold: {time_threshold}")
+                logger.info(f"Generated SQL: {str(query.query)}")
+            else:
+                return Response({"error": "Invalid range format. Use formats like '1h', '1d', '1w'."}, status=400)
+                
+        except ValueError as e:
+            logger.error(f"Error parsing time filter '{time_filter}': {str(e)}")
+            return Response({"error": f"Invalid range format: {str(e)}"}, status=400)
+    
+    # Log the number of results for debugging
+    count = query.count()
+    logger.info(f"Query returned {count} results")
+    
+    # Serialize and return the data
+    serializer = CellInfoSerializer(query, many=True)
+    return Response({
+        "count": count,
+        "time_filter": time_filter,
+        "results": serializer.data
+    })
 
 
 @swagger_auto_schema(method='get', responses={200: UnifiedTestSerializer(many=True)})
@@ -283,7 +337,6 @@ def get_tests(request):
         
         now = timezone.now()
        
-        
         try:
             if time_filter.endswith('h'):  
                 hours = float(time_filter[:-1])
