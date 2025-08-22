@@ -169,19 +169,9 @@ def logout_user(request):
 
 
 @swagger_auto_schema(method='post', request_body=CellInfoSerializer)
-@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def add_cell_info(request):
-    token_key = request.headers.get("Authorization")
-    if not token_key or not token_key.startswith("Token "):
-        return Response({"detail": "Authentication credentials were not provided."}, status=403)
-
-    token_key = token_key.split(" ")[1]
-    try:
-        token = Token.objects.get(key=token_key)
-    except Token.DoesNotExist:
-        return Response({"detail": "Invalid token."}, status=403)
-
+    
     serializer = CellInfoSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(user=token.user)  
@@ -189,15 +179,9 @@ def add_cell_info(request):
     return Response(serializer.errors, status=400)
 
 @swagger_auto_schema(method='post', request_body=AddTestInputSerializer)
-@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def add_test(request):
-    token_key = request.headers.get("Authorization")
-    if not token_key or not token_key.startswith("Token "):
-        return Response(
-            {"detail": "Authentication credentials were not provided."},
-            status=403
-        )
+
 
     type_ = request.data.get('type_')
     if not type_ or type_ not in TEST_SERIALIZER_MAP:
