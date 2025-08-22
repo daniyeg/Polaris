@@ -1,18 +1,12 @@
 'use client'
 
-import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { FaChartPie } from 'react-icons/fa';
-import { FaMapMarkedAlt, FaHistory, FaFilter, FaSignOutAlt } from 'react-icons/fa';
+import { FaMapMarkedAlt, FaHistory, FaFilter, FaSignOutAlt, FaClock } from 'react-icons/fa';
 import { generateMockData } from '@/components/dashboard/GenerateMockData';
 import { UEData } from '@/components/dashboard/types';
-
-type Filters = {
-  gen: string;
-  tech: string;
-  freqBand: string;
-};
+import { useRouter } from 'next/navigation';
 
 const MapTab = dynamic(() => import('@/components/dashboard/Tabs/MapTab'));
 const HistoryTab = dynamic(() => import('@/components/dashboard/Tabs/HistoryTab'));
@@ -20,111 +14,166 @@ const ChartsTab = dynamic(() => import('@/components/dashboard/Tabs/ChartsTab'))
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<string>('map');
-  const [timeRange, setTimeRange] = useState<string>('1h');
+  const [timeRange, setTimeRange] = useState<string>('all');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [data, setData] = useState<UEData[]>([]);
-  const [filters, setFilters] = useState<Filters>({
-    gen: '',
-    tech: '',
-    freqBand: ''
-  });
+  const [error, setError] = useState<string | null>(null);
+  const [showTimeDropdown, setShowTimeDropdown] = useState<boolean>(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/');
+    }
+  }, [router]);
+
+  const handleLogout = async () => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await fetch('https://polaris-server-30ha.onrender.com/api/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (response.ok) {
+        console.log('Token invalidated successfully');
+      } else {
+        console.warn('Logout API call failed.');
+      }
+    } catch (error) {
+      console.error('Error during logout API call:', error);
+    } finally {
+      localStorage.removeItem('token');
+      router.push('/');
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
+      const token = localStorage.getItem('token');
       setIsLoading(true);
-      setTimeout(() => {
-        setData(generateMockData(100));
-        setIsLoading(false);
-      }, 1000);
-    };
-    fetchData();
-  }, [timeRange, filters]);
+      setData([]);
+      setError(null);
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+      try {
+        let url = 'https://polaris-server-30ha.onrender.com/api/get_cell_infos/';
+        if (timeRange !== 'all') {
+          url += `?range=${timeRange}`;
+        }
+
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.status === 403) {
+          localStorage.removeItem('token');
+          router.push('/login');
+          return;
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(JSON.stringify(errorData) || 'خطا در دریافت اطلاعات');
+        }
+
+        const data = await response.json();
+        setData(data);
+      } catch (error) {
+        console.error('خطای دریافت داده:', error);
+        setError('دریافت داده‌ها با مشکل مواجه شد. لطفا دوباره تلاش کنید.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [timeRange, router]);
+
+  const timeRangeOptions = [
+    { value: '1h', label: '۱ ساعت اخیر' },
+    { value: '24h', label: '۲۴ ساعت اخیر' },
+    { value: '7d', label: '۷ روز اخیر' },
+    { value: '2w', label: '۲ هفته اخیر'},
+    { value: '30d', label: '۳۰ روز اخیر' },
+    { value: 'all', label: 'همه' }
+  ];
+
+  const getTimeRangeLabel = (value: string) => {
+    const option = timeRangeOptions.find(opt => opt.value === value);
+    return option ? option.label : 'بازه زمانی';
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background-from to-background-to text-foreground flex flex-col">
-      <header className="bg-ocean-800 p-4 shadow-md">
+      <header className="bg-ocean-800 p-4 shadow-md relative z-[900]">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold">سامانه Polaris</h1>
-          <Link href="/" className="flex items-center text-secondary hover:text-secondary-hover">
-            <FaSignOutAlt className="ml-1" /> خروج
-          </Link>
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold">سامانه Polaris</h1>
+
+            <div className="relative">
+              <button
+                className="flex items-center text-white hover:text-gray-200 bg-ocean-700 py-2 px-3 rounded-md"
+                onClick={() => setShowTimeDropdown(!showTimeDropdown)}
+              >
+                <FaClock className="ml-2" />
+                <span>{getTimeRangeLabel(timeRange)}</span>
+              </button>
+
+              {showTimeDropdown && (
+                <div className="absolute right-0 mt-2 w-48 bg-ocean-700 rounded-md shadow-lg z-[1000]">
+                  <div className="py-1">
+                    {timeRangeOptions.map(option => (
+                      <button
+                        key={option.value}
+                        className={`block w-full text-right px-4 py-2 text-sm hover:bg-ocean-600 ${timeRange === option.value ? 'text-primary' : 'text-white'}`}
+                        onClick={() => {
+                          setTimeRange(option.value);
+                          setShowTimeDropdown(false);
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center text-secondary hover:text-secondary-hover"
+            >
+              <FaSignOutAlt className="ml-1" /> خروج
+            </button>
+          </div>
         </div>
       </header>
 
-      <div className="container mx-auto p-4 flex-1 flex flex-col">
-        <div className="bg-ocean-800 rounded-lg p-4 mb-6 shadow-md">
-          <h2 className="text-lg font-semibold mb-3 flex items-center">
-            <FaFilter className="ml-2" /> فیلترها
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm mb-1">بازه زمانی</label>
-              <select
-                className="w-full bg-ocean-700 border border-ocean-600 rounded p-2 text-sm"
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value)}
-              >
-                <option value="15m">15 دقیقه اخیر</option>
-                <option value="1h">1 ساعت اخیر</option>
-                <option value="24h">24 ساعت اخیر</option>
-                <option value="7d">7 روز اخیر</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm mb-1">نسل شبکه</label>
-              <select
-                className="w-full bg-ocean-700 border border-ocean-600 rounded p-2 text-sm"
-                name="gen"
-                value={filters.gen}
-                onChange={handleFilterChange}
-              >
-                <option value="">همه</option>
-                <option value="2G">2G</option>
-                <option value="3G">3G</option>
-                <option value="4G">4G</option>
-                <option value="5G">5G</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm mb-1">باند فرکانسی</label>
-              <select
-                className="w-full bg-ocean-700 border border-ocean-600 rounded p-2 text-sm"
-                name="freqBand"
-                value={filters.freqBand}
-                onChange={handleFilterChange}
-              >
-                <option value="">همه</option>
-                <option value="B1">B1 (2100 MHz)</option>
-                <option value="B3">B3 (1800 MHz)</option>
-                <option value="B7">B7 (2600 MHz)</option>
-                <option value="B8">B8 (900 MHz)</option>
-                <option value="B20">B20 (800 MHz)</option>
-                <option value="B38">B38 (2600 MHz TDD)</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
+      <div className="container mx-auto p-4 flex-1 flex flex-col relative z-0">
         <div className="flex border-b border-ocean-700 mb-4">
           <button
-            className={`py-3 px-6 font-medium flex items-center ${activeTab === 'map' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
+            className={`flex-1 py-4 px-2 font-medium flex items-center justify-center ${activeTab === 'map' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
             onClick={() => setActiveTab('map')}
           >
             <FaMapMarkedAlt className="ml-2" /> نقشه
           </button>
           <button
-            className={`py-3 px-6 font-medium flex items-center ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
+            className={`flex-1 py-4 px-2 font-medium flex items-center justify-center ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
             onClick={() => setActiveTab('history')}
           >
             <FaHistory className="ml-2" /> تاریخچه
           </button>
           <button
-            className={`py-3 px-6 font-medium flex items-center ${activeTab === 'charts' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
+            className={`flex-1 py-4 px-2 font-medium flex items-center justify-center ${activeTab === 'charts' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
             onClick={() => setActiveTab('charts')}
           >
             <FaChartPie className="ml-2" /> نمودارها
@@ -136,6 +185,17 @@ export default function Dashboard() {
             <div className="flex justify-center items-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
+          ) : error ? (
+            <div className="flex flex-col justify-center items-center h-full p-4 text-center">
+              <div className="text-red-400 text-xl mb-2">خطا در دریافت داده‌ها</div>
+              <div className="text-gray-300 mb-4">{error}</div>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded"
+              >
+                تلاش مجدد
+              </button>
+            </div>
           ) : (
             <div className="h-full p-1">
               {activeTab === 'map' && <MapTab data={data} />}
@@ -145,6 +205,13 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {showTimeDropdown && (
+        <div
+          className="fixed inset-0 z-0"
+          onClick={() => setShowTimeDropdown(false)}
+        />
+      )}
     </div>
   );
 }

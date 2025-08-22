@@ -8,6 +8,13 @@ export default function VerifyOTPPage() {
   const searchParams = useSearchParams()
   const phoneNumber = searchParams.get('phoneNumber') || ''
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, [router]);
+
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -65,8 +72,8 @@ export default function VerifyOTPPage() {
           router.push('/login')
         }, 2000)
       } else {
-        const data = await response.json()
-        setError(data.message || 'کد تأیید نامعتبر است')
+        const errorData = await response.json()
+        setError(JSON.stringify(errorData) || 'کد تأیید نامعتبر است')
       }
     } catch (err) {
       console.error('OTP verification error:', err)
@@ -99,8 +106,8 @@ export default function VerifyOTPPage() {
         setCanResend(false)
         setCountdown(120)
       } else {
-        const data = await response.json()
-        setError(data.message || 'خطا در ارسال مجدد کد')
+        const errorData = await response.json()
+        setError(JSON.stringify(errorData) || 'خطا در ارسال مجدد کد')
       }
     } catch (err) {
       console.error('Resend OTP error:', err)

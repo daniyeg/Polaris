@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -16,6 +16,13 @@ export default function LoginPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [apiError, setApiError] = useState('')
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const validateForm = () => {
     const newErrors = { usernameOrPhone: '', password: '' }
@@ -57,14 +64,13 @@ export default function LoginPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.message || 'نام کاربری یا رمز عبور اشتباه است')
+        throw new Error(JSON.stringify(errorData) || 'نام کاربری یا رمز عبور اشتباه است')
       }
 
       const data = await response.json()
-      console.log('Login successful:', data)
+      localStorage.setItem('token', data.token);
 
       router.push('/dashboard')
-
     } catch (error) {
       console.error('Login error:', error)
       setApiError(error instanceof Error ? error.message : 'خطایی در ورود رخ داد')
