@@ -35,7 +35,7 @@ export default function Dashboard() {
       const response = await fetch('https://polaris-server-30ha.onrender.com/api/logout', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Token ${token}`,
         }
       });
 
@@ -68,7 +68,7 @@ export default function Dashboard() {
         const response = await fetch(url, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Token ${token}`
           }
         });
 
