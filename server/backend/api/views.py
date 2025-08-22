@@ -166,16 +166,27 @@ def logout_user(request):
 
 
 @swagger_auto_schema(method='post', request_body=CellInfoSerializer)
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def add_cell_info(request):
+    token_key = request.headers.get("Authorization")
+    if not token_key or not token_key.startswith("Token "):
+        return Response({"detail": "Authentication credentials were not provided."}, status=403)
+
+    token_key = token_key.split(" ")[1]
+    try:
+        token = Token.objects.get(key=token_key)
+    except Token.DoesNotExist:
+        return Response({"detail": "Invalid token."}, status=403)
+
     serializer = CellInfoSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
+        serializer.save(user=token.user)  
         return Response(serializer.data, status=201)
     return Response(serializer.errors, status=400)
 
-
 @swagger_auto_schema(method='post', request_body=AddTestInputSerializer)
+@permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def add_test(request):
     type_ = request.data.get('type_')
@@ -221,6 +232,7 @@ def get_users(request):
 
 
 @swagger_auto_schema(method='get')
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_cell_info(request):
     data = CellInfo.objects.all()
@@ -229,6 +241,7 @@ def get_cell_info(request):
 
 
 @swagger_auto_schema(method='get', responses={200: UnifiedTestSerializer(many=True)})
+@permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_tests(request):
     time_filter = request.query_params.get('range')
