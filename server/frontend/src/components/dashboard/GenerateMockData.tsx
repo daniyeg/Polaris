@@ -25,7 +25,7 @@ export const generateMockData = (count = 50): UEData[] => {
       freq: Math.floor(Math.random() * 3000 + 700),
       rsrp: -Math.floor(Math.random() * 60 + 80),
       rsrq: -Math.floor(Math.random() * 15 + 5),
-      ecn0: Math.floor(Math.random() * 20 - 10),
+      ecno: Math.floor(Math.random() * 20 - 10),
       rxlev: Math.floor(Math.random() * 50 + 10)
     };
   });
