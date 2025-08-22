@@ -69,19 +69,32 @@ export default function MapComponent({ data }: MapComponentProps) {
         fillOpacity: 0.8
       }).addTo(mapInstance.current!);
 
-      marker.bindPopup(`
+      const popupContent = `
         <div class="text-sm">
-          <strong>موقعیت:</strong> ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}<br>
-          <strong>زمان:</strong> ${new Date(point.timestamp).toLocaleString()}<br>
-          <strong>نسل:</strong> ${point.gen}<br>
-          <strong>تکنولوژی:</strong> ${point.tech}<br>
-          <strong>RSRP:</strong> ${point.rsrp} dBm<br>
-          <strong>RSRQ:</strong> ${point.rsrq} dB<br>
-          ${point.ecno ? `<strong>ECN0:</strong> ${point.ecno} dB<br>` : ''}
-          ${point.rxlev ? `<strong>RXLEV:</strong> ${point.rxlev} dBm<br>` : ''}
+          <strong>Time:</strong> ${new Date(point.timestamp).toLocaleString('fa-IR')}<br>
+          <strong>Location:</strong> ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}<br>
+          <br>
+          <strong>Cell Info</strong><br>
+          ------------<br>
+          ${point.lac !== null || point.tac !== null  ? `LAC/TAC: ${point.lac !== null ? point.lac : point.tac}<br>` : ''}
+          ${point.rac !== null ? `RAC: ${point.rac}<br>` : ''}
+          ${point.plmn !== null ? `plmn-id: ${point.plmn}<br>` : ''}
+          ${point.cid !== null ? `cell-id: ${point.cid}<br>` : ''}
+          ${point.tech !== null ? `Technology: ${point.tech}<br>` : ''}
+          <br>
+          <strong>signaling info</strong><br>
+          --------------------<br>
+          ${point.freq_band !== null ? `Frequency Band: ${point.freq_band}<br>` : ''}
+          ${point.afrn !== null ? `ARFCN: ${point.afrn}<br>` : ''}
+          ${point.freq !== null ? `Frequency: ${point.freq} MHz<br>` : ''}
+          ${point.rsrp !== null ? `RSRP: ${point.rsrp} dBm<br>` : ''}
+          ${point.rsrq !== null ? `RSRQ: ${point.rsrq} dB<br>` : ''}
+          ${point.ecno !== null ? `ECN0: ${point.ecno} dB<br>` : ''}
+          ${point.rxlev !== null ? `RXLEV: ${point.rxlev} dBm<br>` : ''}
         </div>
-      `);
+      `;
 
+      marker.bindPopup(popupContent);
       markersRef.current.push(marker);
     });
 
