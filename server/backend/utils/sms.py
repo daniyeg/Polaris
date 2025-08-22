@@ -13,4 +13,4 @@ def send_otp(receptor):
     return str(code), response
 
 
-# send_otp('09104696634')
+send_otp('09104696634')
