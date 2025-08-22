@@ -61,7 +61,7 @@ def request_otp(request):
         'status': 'success',
         'message': 'OTP sent successfully',
         'phone_number': str(phone_number),
-        'otp': code  # remove this in production!
+        'otp': code  
     })
 
 

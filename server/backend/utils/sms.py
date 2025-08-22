@@ -9,8 +9,8 @@ def send_otp(receptor):
                 'message' :f'Polaris sign up code : {code}'}
     
     response = ''
-    # response = api.sms_send(params)
+    response = api.sms_send(params)
     return str(code), response
 
 
-# send_otp('09104696634')
+send_otp('09104696634')
