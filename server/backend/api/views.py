@@ -189,6 +189,13 @@ def add_cell_info(request):
 @permission_classes([IsAuthenticated])
 @api_view(['POST'])
 def add_test(request):
+    token_key = request.headers.get("Authorization")
+    if not token_key or not token_key.startswith("Token "):
+        return Response(
+            {"detail": "Authentication credentials were not provided."},
+            status=403
+        )
+
     type_ = request.data.get('type_')
     if not type_ or type_ not in TEST_SERIALIZER_MAP:
         return Response({'error': 'Invalid or missing test type'}, status=400)
@@ -235,6 +242,13 @@ def get_users(request):
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_cell_info(request):
+    token_key = request.headers.get("Authorization")
+    if not token_key or not token_key.startswith("Token "):
+        return Response(
+            {"detail": "Authentication credentials were not provided."},
+            status=403
+        )
+
     data = CellInfo.objects.all()
     serializer = CellInfoSerializer(data, many=True)
     return Response(serializer.data)
