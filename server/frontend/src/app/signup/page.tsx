@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -20,6 +20,13 @@ export default function SignupPage() {
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [apiError, setApiError] = useState('')
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const validateForm = () => {
     const newErrors = { username: '', phoneNumber: '', password: '', confirmPassword: '' }
@@ -95,11 +102,11 @@ export default function SignupPage() {
       })
 
       if (!signupResponse.ok) {
-        const data = await signupResponse.json()
-        throw new Error(data.message || 'خطا در ثبت نام')
+        const errorData = await signupResponse.json()
+        throw new Error(JSON.stringify(errorData) || 'خطا در ثبت نام')
       }
 
-      const otpResponse = await fetch('https://polaris-server-30ha.onrender.com/request_otp/', {
+      const otpResponse = await fetch('https://polaris-server-30ha.onrender.com/api/request_otp/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +118,7 @@ export default function SignupPage() {
 
       if (!otpResponse.ok) {
         const errorData = await otpResponse.json()
-        throw new Error(errorData.message || 'خطا در ارسال کد تأیید')
+        throw new Error(JSON.stringify(errorData) || 'خطا در ارسال کد تأیید')
       }
 
       router.push(`/signup/verify-otp?phoneNumber=${encodeURIComponent(formData.phoneNumber)}`)

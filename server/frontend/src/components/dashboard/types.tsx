@@ -1,20 +1,22 @@
 export type UEData = {
+  id: number;
+  phone_number: string;
   lat: number;
   lng: number;
-  timestamp: number;
+  timestamp: string;
   gen: string;
   tech: string;
-  plmn: number;
+  plmn: string;
+  cid: number;
   lac: number;
   rac: number;
   tac: number;
-  cid: number;
   freq_band: string;
   afrn: number;
   freq: number;
   rsrp: number;
   rsrq: number;
-  ecn0: number;
+  ecno: number;
   rxlev: number;
 };
 
