@@ -158,24 +158,26 @@ export default function TableTab({ data }: DashboardTabProps) {
             {currentItems.map((item) => (
               <tr key={item.id} className="border-b border-ocean-700 hover:bg-ocean-700">
                 <td className="py-2 px-2 text-center">{item.id}</td>
-                <td className="py-2 px-2 text-center">{item.phone_number}</td>
-                <td className="py-2 px-2 text-center">{new Date(item.timestamp).toLocaleString('fa-IR')}</td>
-                <td className="py-2 px-2 text-center">{item.lat.toFixed(6)}</td>
-                <td className="py-2 px-2 text-center">{item.lng.toFixed(6)}</td>
-                <td className="py-2 px-2 text-center">{item.gen}</td>
-                <td className="py-2 px-2 text-center">{item.tech}</td>
-                <td className="py-2 px-2 text-center">{item.plmn}</td>
-                <td className="py-2 px-2 text-center">{item.cid}</td>
-                <td className="py-2 px-2 text-center">{item.lac}</td>
-                <td className="py-2 px-2 text-center">{item.rac}</td>
-                <td className="py-2 px-2 text-center">{item.tac}</td>
-                <td className="py-2 px-2 text-center">{item.freq_band}</td>
-                <td className="py-2 px-2 text-center">{item.afrn}</td>
-                <td className="py-2 px-2 text-center">{item.freq}</td>
-                <td className="py-2 px-2 text-center">{item.rsrp}</td>
-                <td className="py-2 px-2 text-center">{item.rsrq}</td>
-                <td className="py-2 px-2 text-center">{item.ecno}</td>
-                <td className="py-2 px-2 text-center">{item.rxlev}</td>
+                <td className="py-2 px-2 text-center">{item.phone_number || '—'}</td>
+                <td className="py-2 px-2 text-center">
+                  {item.timestamp ? new Date(item.timestamp).toLocaleString('fa-IR') : '—'}
+                </td>
+                <td className="py-2 px-2 text-center">{item.lat.toFixed(6) || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.lng.toFixed(6) || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.gen || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.tech || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.plmn || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.cid || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.lac || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.rac || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.tac || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.freq_band || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.afrn || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.freq || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.rsrp || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.rsrq || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.ecno || '—'}</td>
+                <td className="py-2 px-2 text-center">{item.rxlev || '—'}</td>
               </tr>
             ))}
           </tbody>
