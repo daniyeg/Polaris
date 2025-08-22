@@ -3,13 +3,13 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { FaChartPie } from 'react-icons/fa';
-import { FaMapMarkedAlt, FaHistory, FaFilter, FaSignOutAlt, FaClock } from 'react-icons/fa';
+import { FaMapMarkedAlt, FaTable, FaFilter, FaSignOutAlt, FaClock } from 'react-icons/fa';
 import { generateMockData } from '@/components/dashboard/GenerateMockData';
 import { UEData } from '@/components/dashboard/types';
 import { useRouter } from 'next/navigation';
 
 const MapTab = dynamic(() => import('@/components/dashboard/Tabs/MapTab'));
-const HistoryTab = dynamic(() => import('@/components/dashboard/Tabs/HistoryTab'));
+const TableTab = dynamic(() => import('@/components/dashboard/Tabs/TableTab'));
 const ChartsTab = dynamic(() => import('@/components/dashboard/Tabs/ChartsTab'));
 
 export default function Dashboard() {
@@ -167,10 +167,10 @@ export default function Dashboard() {
             <FaMapMarkedAlt className="ml-2" /> نقشه
           </button>
           <button
-            className={`flex-1 py-4 px-2 font-medium flex items-center justify-center ${activeTab === 'history' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
-            onClick={() => setActiveTab('history')}
+            className={`flex-1 py-4 px-2 font-medium flex items-center justify-center ${activeTab === 'table' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
+            onClick={() => setActiveTab('table')}
           >
-            <FaHistory className="ml-2" /> تاریخچه
+            <FaTable className="ml-2" /> جدول
           </button>
           <button
             className={`flex-1 py-4 px-2 font-medium flex items-center justify-center ${activeTab === 'charts' ? 'text-primary border-b-2 border-primary' : 'text-ocean-300 hover:text-ocean-200'}`}
@@ -199,7 +199,7 @@ export default function Dashboard() {
           ) : (
             <div className="h-full p-1">
               {activeTab === 'map' && <MapTab data={data} />}
-              {activeTab === 'history' && <HistoryTab data={data} />}
+              {activeTab === 'table' && <TableTab data={data} />}
               {activeTab === 'charts' && <ChartsTab data={data} />}
             </div>
           )}

@@ -2,10 +2,10 @@
 
 import { DashboardTabProps } from '../types';
 
-export default function HistoryTab({ data }: DashboardTabProps) {
+export default function TableTab({ data }: DashboardTabProps) {
   return (
     <div className="bg-ocean-800 rounded-lg p-4 shadow-md">
-      <h2 className="text-lg font-semibold mb-4">تاریخچه داده‌ها</h2>
+      <h2 className="text-lg font-semibold mb-4">جدول داده‌ها</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full text-sm">
           <thead>
