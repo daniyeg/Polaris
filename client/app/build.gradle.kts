@@ -1,7 +1,11 @@
 plugins {
+    id("kotlin-kapt")
+
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.kapt)
+
 }
 
 android {
@@ -40,6 +44,21 @@ android {
 }
 
 dependencies {
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation("androidx.room:room-runtime:2.5.2")
+    implementation("androidx.room:room-ktx:2.5.2")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+
+    implementation(libs.play.services.location)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.runtime.saved.instance.state)
+    implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.work.runtime.ktx)
+    //implementation(libs.mediation.test.suite)
+//    kapt("androidx.room:room-compiler:2.5.2")
+    kapt(libs.room.compiler)  // Use kapt here
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -56,4 +75,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }

@@ -1,47 +1,36 @@
 package com.beyond5g.polaris
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.beyond5g.polaris.ui.theme.PolarisTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            PolarisTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+
+        val sharedPref = getSharedPreferences("auth", MODE_PRIVATE)
+        val isLoggedIn = sharedPref.getBoolean("is_logged_in", false)
+        val loginTime = sharedPref.getLong("login_time", 0L)
+
+        val sessionDurationLimit = 120 * 60 * 1000
+
+        val currentTime = System.currentTimeMillis()
+
+        var isSessionValid = isLoggedIn && (currentTime - loginTime < sessionDurationLimit)
+
+//        isSessionValid = true
+
+        val intent = if (isSessionValid) {
+            Intent(this, HomeActivity::class.java)
+        } else {
+            sharedPref.edit().clear().apply()
+            Intent(this, LoginActivity::class.java)
         }
+
+        startActivity(intent)
+        finish()
     }
+
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    PolarisTheme {
-        Greeting("Android")
-    }
-}
