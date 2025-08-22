@@ -9,7 +9,7 @@ interface MapComponentProps {
     lat: number;
     lng: number;
     rsrp: number;
-    timestamp: number;
+    timestamp: string;
     gen: string;
     tech: string;
     rsrq: number;
