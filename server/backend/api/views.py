@@ -280,28 +280,34 @@ def get_tests(request):
     # Apply time filter if provided
     if time_filter:
         time_filter = time_filter.lower().strip()
+        
         now = timezone.now()
-        logger.info(f"Time threshold: {time_threshold}")
-        logger.info(f"Generated SQL: {str(query.query)}")
+       
+        
         try:
             if time_filter.endswith('h'):  
                 hours = float(time_filter[:-1])
                 time_threshold = now - timedelta(hours=hours)
                 query = query.filter(timestamp__gte=time_threshold)
                 logger.info(f"Filtering tests from last {hours} hours (since {time_threshold})")
-                
+                logger.info(f"Time threshold: {time_threshold}")
+                logger.info(f"Generated SQL: {str(query.query)}")
+
             elif time_filter.endswith('d'):  
                 days = int(time_filter[:-1])
                 time_threshold = now - timedelta(days=days)
                 query = query.filter(timestamp__gte=time_threshold)
                 logger.info(f"Filtering tests from last {days} days (since {time_threshold})")
+                logger.info(f"Time threshold: {time_threshold}")
+                logger.info(f"Generated SQL: {str(query.query)}")
                 
             elif time_filter.endswith('w'): 
                 weeks = int(time_filter[:-1])
                 time_threshold = now - timedelta(weeks=weeks)
                 query = query.filter(timestamp__gte=time_threshold)
                 logger.info(f"Filtering tests from last {weeks} weeks (since {time_threshold})")
-                
+                logger.info(f"Time threshold: {time_threshold}")
+                logger.info(f"Generated SQL: {str(query.query)}")
             else:
                 return Response({"error": "Invalid range format. Use formats like '1h', '1d', '1w'."}, status=400)
                 
