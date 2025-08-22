@@ -251,10 +251,8 @@ class CellDetector(private val context: Context) {
         val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
         val cellInfoList = telephonyManager.allCellInfo ?: return
 
-        // Collect all registered cells
         val registeredCells = cellInfoList.filter { it.isRegistered }
 
-        // Prefer WCDMA > LTE > GSM
         val preferredCell = registeredCells.firstOrNull { it is CellInfoGsm }
             ?: registeredCells.firstOrNull { it is CellInfoWcdma }
             ?: registeredCells.firstOrNull { it is CellInfoLte }

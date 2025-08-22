@@ -63,7 +63,7 @@ class ForegroundService : Service() {
         runnable = object : Runnable {
             override fun run() {
                 sendDataToServer()
-                handler.postDelayed(this, 15_000) // every 15 sec
+                handler.postDelayed(this, 15_000)
             }
         }
     }
@@ -125,7 +125,7 @@ class ForegroundService : Service() {
 
 
     private fun sendDataToServer() {
-        Thread { // 🔥 FIX #3: run in background thread
+        Thread {
             val cellDetector = CellDetector(applicationContext)
             Log.d("DEBUG", "Service loop executed!")
 
