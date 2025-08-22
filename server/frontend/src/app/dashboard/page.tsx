@@ -84,7 +84,7 @@ export default function Dashboard() {
         }
 
         const data = await response.json();
-        setData(data);
+        setData(data.results);
       } catch (error) {
         console.error('خطای دریافت داده:', error);
         setError('دریافت داده‌ها با مشکل مواجه شد. لطفا دوباره تلاش کنید.');
