@@ -14,7 +14,7 @@ const ChartsTab = dynamic(() => import('@/components/dashboard/Tabs/ChartsTab'))
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<string>('map');
-  const [timeRange, setTimeRange] = useState<string>('all');
+  const [timeRange, setTimeRange] = useState<string>('24h');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [data, setData] = useState<UEData[]>([]);
   const [testData, setTestData] = useState<TestData[]>([]);
