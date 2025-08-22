@@ -229,7 +229,6 @@ def get_users(request):
 @permission_classes([IsAuthenticated])
 @api_view(['GET'])
 def get_cell_info(request):
-    # Authentication check
     token_key = request.headers.get("Authorization")
     if not token_key or not token_key.startswith("Token "):
         return Response(
@@ -237,16 +236,12 @@ def get_cell_info(request):
             status=403
         )
 
-    # Get the range parameter (case-insensitive)
     time_filter = request.query_params.get('range') or request.query_params.get('Range')
     
-    # Log the request for debugging
     logger.info(f"GET cell_info request received with range parameter: {time_filter}")
     
-    # Start with all objects
     query = CellInfo.objects.all()
     
-    # Apply time filter if provided
     if time_filter:
         time_filter = time_filter.lower().strip()
         now = timezone.now()
@@ -282,11 +277,9 @@ def get_cell_info(request):
             logger.error(f"Error parsing time filter '{time_filter}': {str(e)}")
             return Response({"error": f"Invalid range format: {str(e)}"}, status=400)
     
-    # Log the number of results for debugging
     count = query.count()
     logger.info(f"Query returned {count} results")
     
-    # Serialize and return the data
     serializer = CellInfoSerializer(query, many=True)
     return Response({
         "count": count,
@@ -306,16 +299,12 @@ def get_tests(request):
             {"detail": "Authentication credentials were not provided."},
             status=403
         )
-    # Get the range parameter (case-insensitive)
     time_filter = request.query_params.get('range') or request.query_params.get('Range')
     
-    # Log the request for debugging
     logger.info(f"GET tests request received with range parameter: {time_filter}")
     
-    # Start with all objects
     query = Test.objects.all()
     
-    # Apply time filter if provided
     if time_filter:
         time_filter = time_filter.lower().strip()
         
@@ -352,11 +341,9 @@ def get_tests(request):
             logger.error(f"Error parsing time filter '{time_filter}': {str(e)}")
             return Response({"error": f"Invalid range format: {str(e)}"}, status=400)
     
-    # Log the number of results for debugging
     count = query.count()
     logger.info(f"Query returned {count} results")
     
-    # Serialize and return the data
     serializer = UnifiedTestSerializer(query, many=True)
     return Response({
         "count": count,

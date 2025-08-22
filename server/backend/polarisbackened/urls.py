@@ -10,7 +10,7 @@ schema_view = get_schema_view(
         default_version='v1',
     ),
     public=True,
-    url='https://polaris-server-30ha.onrender.com',  # Force HTTPS
+    url='https://polaris-server-30ha.onrender.com',  
 )
 
 
